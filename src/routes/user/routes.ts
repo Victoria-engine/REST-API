@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from "express";
-import User from "../../models/user";
+import { NextFunction, Request, Response, } from 'express'
+import User from '../../models/user'
 
 export default [
   {
@@ -14,7 +14,7 @@ export default [
         } catch (err) {
           next(err)
         }
-      }
-    ]
-  }
+      },
+    ],
+  },
 ]
