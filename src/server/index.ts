@@ -4,6 +4,7 @@ import applyMiddleware from '../util/applyMiddleware'
 import middlewares from '../middleware'
 import routes from '../routes'
 import applyRoutes from '../util/applyRoutes'
+import errors from '../middleware/errors'
 
 export default class Server {
   private static app: Application = express()
@@ -26,5 +27,6 @@ export default class Server {
 
   private static configureRoutes() {
     applyRoutes(routes, this.app)
+    applyMiddleware(errors, this.app)
   }
 }

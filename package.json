@@ -38,7 +38,8 @@
     "local": "nodemon src/index.ts",
     "lint": "eslint . --ext .ts",
     "migrate": "knex migrate:make",
-    "migrate:latest": "npx knex migrate:latest"
+    "migrate:latest": "npx knex migrate:latest",
+    "migrate:down": "npx knex migrate:down"
   },
   "keywords": [],
   "author": "",
