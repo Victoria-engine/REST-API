@@ -14,3 +14,8 @@ export const createUser = async (args: CreateUserPayload) => {
 
   return user
 }
+
+export const getUserByID = async (id: string) => {
+  const user = await User.where<User>({ id }).fetch()
+  return user
+}

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
-import { createUser, getAllUsers } from '../../services/users/methods'
-import { present } from '../../services/users/presenters'
+import { createUser, getAllUsers } from '../../services/user/methods'
+import { present } from '../../services/user/presenters'
 
 export default [
   {
