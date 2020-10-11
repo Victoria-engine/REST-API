@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from 'express'
+import { JWTTokenVerify } from '../../middleware'
 import Post from '../../models/post'
 import { createPost } from '../../services/post/methods'
+import { AuthenticatedRequest } from '../../types'
+import { HTTP401Error } from '../../util/errors/httpErrors'
 
 export default [
   {
@@ -23,11 +26,18 @@ export default [
     path: '/post',
     method: 'post',
     handler: [
-      async (req: Request, res: Response, next: NextFunction) => {
-        const { title, text, author_id } = req.body
+      JWTTokenVerify,
+
+      async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        const { title, text } = req.body
 
         try {
-          const freshPost = await createPost({ title, text, author_id })
+          const { userID } = req
+          if (!userID) {
+            throw new HTTP401Error('Invalid auth, no user ID in request context.')
+          }
+
+          const freshPost = await createPost({ title, text, author_id: userID })
 
           res.status(200).json(freshPost)
         } catch (err) {
