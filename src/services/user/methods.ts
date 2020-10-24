@@ -1,4 +1,5 @@
 import User from '../../models/user'
+import { HTTP401Error } from '../../util/errors/httpErrors'
 
 export const getAllUsers = async () => {
   const users = await new User().fetchAll()
@@ -21,8 +22,12 @@ export const getUserByID = async (id: string) => {
 }
 
 export const getUserByEmail = async (email: string) => {
-  const user = await User.where<User>({ email }).fetch()
-  return user
+  try {
+    const user = await User.where<User>({ email }).fetch()
+    return user
+  } catch (err) {
+    throw new HTTP401Error('No user found with such credentials.')
+  }
 }
 
 export const getUserByGoogleID = async (google_id: string) => {
@@ -30,6 +35,6 @@ export const getUserByGoogleID = async (google_id: string) => {
     const user = await User.where<User>({ google_id }).fetch()
     return user
   } catch (err) {
-    return null
+    throw new HTTP401Error('No user found with such credentials.')
   }
 }

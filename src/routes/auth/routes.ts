@@ -22,7 +22,6 @@ export default [
           }
 
           const user = await getUserByGoogleID(userData.id)
-          console.log(user)
           if (!user) { // TODO: Should this prompt to a new page to fill new data ??? or this is the default
             // create new user
             const freshUser = await createUser({
@@ -36,7 +35,6 @@ export default [
               throw new Error('Failed creating user from google oauth2.')
             }
 
-            // Return JWT token for auth (google ? or mines ?)
             const accessToken = await loginUser({
               email: freshUser.email,
               google_id: freshUser.id,
@@ -50,9 +48,10 @@ export default [
             email: userData.email,
             google_id: userData.id,
           })
-          console.log(accessToken)
 
-          res.status(200).json(accessToken)
+          res.status(200).json({
+            access_token: accessToken,
+          })
         } catch (err) {
           next(err)
         }
@@ -64,10 +63,27 @@ export default [
     method: 'post',
     handler: [
       async (req: Request, res: Response, next: NextFunction) => {
-        const { title } = req.body
+        const { email, password } = req.body
 
         try {
-          res.status(200).json(title)
+          const accessToken = await loginUser({ email, password })
+
+          res.status(200).json({
+            access_token: accessToken,
+          })
+        } catch (err) {
+          next(err)
+        }
+      },
+    ],
+  },
+  {
+    path: '/auth/register',
+    method: 'post',
+    handler: [
+      async (req: Request, res: Response, next: NextFunction) => {
+        try {
+          throw new Error('Not implememented!')
         } catch (err) {
           res.status(401).json({
             message: err.message,
