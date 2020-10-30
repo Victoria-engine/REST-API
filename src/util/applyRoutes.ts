@@ -8,12 +8,13 @@ type Route = {
 }
 
 const applyRoutes = (routes: Route[], router: Router) => {
-  signale.log('[applyRoutes]: Creating routes...');
+  signale.log('[applyRoutes]: Creating routes...')
 
   for (const route of routes) {
+    // eslint-disable-next-line semi
     const { method, path, handler } = route;
 
-    signale.log('   -> Created: ', method, path);
+    signale.log('   -> Created: ', method.toUpperCase(), path);
     (router as any)[method](path, handler)
   }
 }

@@ -1,11 +1,25 @@
 import { NextFunction, Request, Response } from 'express'
 import { JWTTokenVerify } from '../../middleware'
-import Post from '../../models/post'
-import { createPost } from '../../services/post/methods'
+import { createPost, getAuthorPosts, getPostByID } from '../../services/post/methods'
 import { AuthenticatedRequest } from '../../types'
-import { HTTP401Error } from '../../util/errors/httpErrors'
+import { HTTP401Error, HTTP404Error } from '../../util/errors/httpErrors'
 
 export default [
+  {
+    path: '/post/:postID',
+    method: 'get',
+    handler: [
+      async (req: Request, res: Response, next: NextFunction) => {
+        const { postID } = req.params
+        try {
+          const post = await getPostByID(postID)
+          res.status(200).json(post)
+        } catch (err) {
+          next(err)
+        }
+      },
+    ],
+  },
   {
     path: '/posts/:authorID',
     method: 'get',
@@ -13,7 +27,11 @@ export default [
       async (req: Request, res: Response, next: NextFunction) => {
         const { authorID } = req.params
         try {
-          const userPosts = await new Post().where('author_id', authorID).fetchAll()
+          const userPosts = await getAuthorPosts(authorID)
+          if (userPosts.length <= 0) {
+            // TODO: Check if author even exists
+            throw new HTTP404Error('author has no posts')
+          }
 
           res.status(200).json(userPosts)
         } catch (err) {
