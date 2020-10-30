@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 import { JWTTokenVerify } from '../../middleware'
 import { createPost, getAuthorPosts, getPostByID } from '../../services/post/methods'
 import { AuthenticatedRequest } from '../../types'
-import { HTTP401Error, HTTP404Error } from '../../util/errors/httpErrors'
+import { HTTP401Error } from '../../util/errors/httpErrors'
 
 export default [
   {
@@ -28,11 +28,6 @@ export default [
         const { authorID } = req.params
         try {
           const userPosts = await getAuthorPosts(authorID)
-          if (userPosts.length <= 0) {
-            // TODO: Check if author even exists
-            throw new HTTP404Error('author has no posts')
-          }
-
           res.status(200).json(userPosts)
         } catch (err) {
           next(err)

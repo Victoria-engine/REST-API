@@ -1,7 +1,10 @@
 import Post from '../../models/post'
+import { HTTP404Error } from '../../util/errors/httpErrors'
 
 export type CreatePostPayload = { title: string, text: string, author_id: string }
 export const createPost = async (args: CreatePostPayload) => {
+  if (!args.author_id || !args.text) return
+
   try {
     return await new Post(args).save()
   } catch (err) {
@@ -13,7 +16,7 @@ export const getPostByID = async (id: string) => {
   try {
     return await Post.where<Post>({ id }).fetch()
   } catch (err) {
-    throw new Error(`post with ID of ${id} does not exist`)
+    throw new HTTP404Error(`post with ID of ${id} does not exist`)
   }
 }
 
