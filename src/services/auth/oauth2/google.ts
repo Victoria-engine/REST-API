@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { GoogleService, GoogleUserData } from '../../../types'
 
 const getUserData = async (access_token: string) => {
   try {
@@ -10,10 +11,14 @@ const getUserData = async (access_token: string) => {
       },
     })
 
-    return data
+    return data as GoogleUserData
   } catch (err) {
     throw new Error(err)
   }
+}
+
+export const GoogleSerivce: GoogleService = {
+  getUserData: getUserData,
 }
 
 export default {

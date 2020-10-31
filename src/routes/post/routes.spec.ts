@@ -46,16 +46,16 @@ describe('Post', () => {
 
   describe('GET /posts/:authorID', () => {
     /*     tracker.install()
-    
+
         afterAll(() => tracker.uninstall())
      */
     /*     it('should return 404 for a none existent author', async () => {
           tracker.on('query', (query) => {
             query.response([])
           })
-    
+
           const res = await mockServer.get('/posts/2')
-    
+
           expect(res.status).toEqual(404)
           expect(res.body.message).toEqual('post with ID of 2 does not exist')
         }) */
@@ -64,9 +64,9 @@ describe('Post', () => {
           tracker.on('query', (query) => {
             query.response([mockPost])
           })
-    
+
           const res = await mockServer.get('/post/1')
-    
+
           expect(res.status).toEqual(200)
           expect(res.body).toEqual(mockPost)
         }) */

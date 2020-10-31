@@ -14,20 +14,20 @@ const InternalLoginStrategy: LoginStrategy = {
     const { email, password } = credentials
 
     if (!JWT_SECRET) {
-      throw new Error('No JWT Secret.')
+      throw new Error('no JWT Secret')
     }
 
     const user = await getUserByEmail(email)
 
     if (!user.password) {
-      throw new Error('User is not an internal, try to login with an external provider.')
+      throw new Error('user is not an internal, try to login with an external provider')
     }
 
     // Validate password against the hashed one
     const comparePasswords = await bcrypt.compare(password, user.password)
 
     if (!comparePasswords) {
-      throw new HTTP401Error('Wrong password.')
+      throw new HTTP401Error('wrong password')
     }
 
     const accessToken = jwt.sign({ email, id: user.id.toString() },
@@ -47,11 +47,11 @@ const GoogleOAuth2LoginStrategy: LoginStrategy = {
 
     try {
       if (!google_id) {
-        throw new Error('Google user does not have a google_id, wrong login strategy.')
+        throw new Error('google user does not have a google_id, wrong login strategy')
       }
 
       if (!JWT_SECRET) {
-        throw new Error('No JWT Secret.')
+        throw new Error('no JWT Secret')
       }
 
       const user = await getUserByGoogleID(google_id)
@@ -78,15 +78,11 @@ export const loginUser = async (credentials: LoginUserPayload) => {
 
   const userIdentifier = email || google_id
   if (!userIdentifier) {
-    throw new HTTP404Error('Missing args.')
+    throw new HTTP404Error('missing args')
   }
   const getUserStrategy = google_id ? LoginStragegies.OAUTH2_GOOGLE : LoginStragegies.INTERNAL
   const strategy = LoginStrategyHandler[getUserStrategy]
 
-  try {
-    const accesToken = await strategy.login(credentials)
-    return accesToken
-  } catch (err) {
-    throw new Error(err)
-  }
+  const accesToken = await strategy.login(credentials)
+  return accesToken
 }

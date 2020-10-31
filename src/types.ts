@@ -17,3 +17,13 @@ export enum LoginStragegies {
   OAUTH2_GOOGLE = 'oauth2_google',
   INTERNAL = 'internal'
 }
+
+export type GoogleUserData = {
+  email: string,
+  name: string,
+  id: string,
+}
+
+export interface GoogleService {
+  getUserData: (at: string) => Promise<GoogleUserData>
+}

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { loginUser } from '../../services/auth/methods'
-import google from '../../services/auth/oauth2/google'
+import { GoogleSerivce } from '../../services/auth/oauth2/google'
 import { createUser, getUserByGoogleID } from '../../services/user/methods'
 import { HTTP400Error } from '../../util/errors/httpErrors'
 
@@ -14,15 +14,18 @@ export default [
 
         try {
           if (!access_token) {
-            throw new HTTP400Error('Missing access_token')
+            throw new HTTP400Error('missing google access_token')
           }
-          const userData = await google.getUserData(access_token)
+
+          const userData = await GoogleSerivce.getUserData(access_token)
           if (!userData) {
-            throw new Error('Failed getting user data from google oauth2.')
+            throw new Error('failed getting user data from google oauth2')
           }
 
           const user = await getUserByGoogleID(userData.id)
-          if (!user) { // TODO: Should this prompt to a new page to fill new data ??? or this is the default
+          const shouldCreateNewUser = !user
+          if (shouldCreateNewUser) {
+            // TODO: Should this prompt to a new page to fill new data ??? or this is the default
             // create new user
             const freshUser = await createUser({
               email: userData.email,
@@ -32,7 +35,7 @@ export default [
             })
 
             if (!freshUser) {
-              throw new Error('Failed creating user from google oauth2.')
+              throw new Error('failed creating user from google oauth2')
             }
 
             const accessToken = await loginUser({
@@ -64,7 +67,6 @@ export default [
     handler: [
       async (req: Request, res: Response, next: NextFunction) => {
         const { email, password } = req.body
-
         try {
           const accessToken = await loginUser({ email, password })
 
