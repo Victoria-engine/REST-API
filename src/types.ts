@@ -30,7 +30,7 @@ export interface GoogleService {
 }
 
 export interface JWTService {
-  verify: jwt['verify'],
+  verify: typeof jwt['verify'],
 }
 
 export type ValidationParam = {
@@ -39,3 +39,5 @@ export type ValidationParam = {
   type: string,
   validator_functions?: ((param: any) => boolean)[]
 }
+
+export type PostVisibility = 'public' | 'not-listed' | 'private'

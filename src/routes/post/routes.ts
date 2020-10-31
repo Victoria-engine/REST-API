@@ -22,13 +22,13 @@ export default [
     ],
   },
   {
-    path: '/posts/:authorID',
+    path: '/posts/:user_id',
     method: 'get',
     handler: [
       async (req: Request, res: Response, next: NextFunction) => {
-        const { authorID } = req.params
+        const { user_id } = req.params
         try {
-          const userPosts = await getAuthorPosts(authorID)
+          const userPosts = await getAuthorPosts(user_id)
           res.status(200).json(userPosts)
         } catch (err) {
           next(err)

@@ -1,7 +1,7 @@
 import Post from '../../models/post'
 
 export const present = (post: Post) => {
-  const { id, title, authorID, text } = post
+  const { id, title, user_id, text } = post
 
-  return { id, title, text, authorID }
+  return { id, title, text, user_id }
 }

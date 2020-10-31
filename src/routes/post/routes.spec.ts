@@ -10,7 +10,7 @@ const mockPost = {
   id: 1,
   title: 'Sample title',
   text: 'Sampel text',
-  authorID: '2',
+  user_id: '2',
 } as Post
 
 
@@ -45,7 +45,7 @@ describe('Post', () => {
     })
   })
 
-  describe('GET /posts/:authorID', () => {
+  describe('GET /posts/:user_id', () => {
     /*     tracker.install()
 
         afterAll(() => tracker.uninstall())

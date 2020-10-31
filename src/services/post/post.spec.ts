@@ -13,7 +13,7 @@ describe('createPost', () => {
           id: 1,
           title: 'Sample title',
           text: 'Sample text',
-          authorID: '1',
+          user_id: '1',
         },
       ])
     })

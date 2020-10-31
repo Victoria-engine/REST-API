@@ -29,7 +29,7 @@ export const JWTTokenVerify = (req: Request, res: Response, next: NextFunction) 
     throw new Error('missing JWT secret')
   }
 
-  const decodedToken = jwtService.verify(accessToken, JWT_SECRET)
+  const decodedToken = jwtService.verify(accessToken, JWT_SECRET) as { id: string }
   if (!decodedToken) {
     throw new HTTP401Error('invalid access token')
   }

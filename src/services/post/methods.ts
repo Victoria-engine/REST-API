@@ -20,10 +20,10 @@ export const getPostByID = async (id: string) => {
   }
 }
 
-export const getAuthorPosts = async (authorID: string) => {
+export const getAuthorPosts = async (user_id: string) => {
   try {
-    return await new Post().where('author_id', authorID).fetchAll()
+    return await new Post().where('author_id', user_id).fetchAll()
   } catch (err) {
-    throw new Error(`author with ID of ${authorID} does not exist`)
+    throw new Error(`author with ID of ${user_id} does not exist`)
   }
 }
