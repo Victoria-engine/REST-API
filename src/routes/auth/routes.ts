@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
+import { validateParams } from '../../middleware/paramValidation'
 import { loginUser } from '../../services/auth/methods'
 import { GoogleSerivce } from '../../services/auth/oauth2/google'
 import { createUser, getUserByGoogleID } from '../../services/user/methods'
@@ -9,6 +10,14 @@ export default [
     path: '/auth/google',
     method: 'post',
     handler: [
+      validateParams([
+        {
+          param_key: 'access_token',
+          required: true,
+          type: 'string',
+        },
+      ]),
+
       async (req: Request, res: Response, next: NextFunction) => {
         const { access_token } = req.body
 
@@ -65,6 +74,21 @@ export default [
     path: '/auth/login',
     method: 'post',
     handler: [
+      validateParams([
+        {
+          param_key: 'email',
+          required: true,
+          type: 'string',
+          validator_functions: [(p) => p.length <= 50]
+        },
+        {
+          param_key: 'password',
+          required: true,
+          type: 'string',
+          validator_functions: [(p) => p.length <= 100 && p.length >= 3]
+        },
+      ]),
+
       async (req: Request, res: Response, next: NextFunction) => {
         const { email, password } = req.body
         try {

@@ -99,7 +99,7 @@ describe('Auth', () => {
         const res = await mockServer.post('/auth/google')
 
         expect(res.status).toEqual(400)
-        expect(res.body.message).toEqual('missing google access_token')
+        expect(res.body.message).toEqual('missing parameter access_token')
       })
 
       it('should return 500 bad request if the google providers fails', async () => {

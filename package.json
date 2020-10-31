@@ -22,6 +22,7 @@
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-validator": "^6.6.1",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.21.6",
     "morgan": "^1.10.0",
@@ -53,7 +54,8 @@
     "migrate": "knex migrate:make",
     "migrate:latest": "npx knex migrate:latest",
     "migrate:down": "npx knex migrate:down",
-    "test": "jest"
+    "test": "jest --collect-coverage",
+    "open-cov": "open ./coverage/lcov-report/index.html"
   },
   "keywords": [],
   "author": "",

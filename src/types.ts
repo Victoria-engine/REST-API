@@ -1,4 +1,5 @@
 import { Request } from 'express'
+import jwt from 'jsonwebtoken'
 import User from './models/user'
 
 export interface AuthenticatedRequest extends Request {
@@ -26,4 +27,15 @@ export type GoogleUserData = {
 
 export interface GoogleService {
   getUserData: (at: string) => Promise<GoogleUserData>
+}
+
+export interface JWTService {
+  verify: jwt['verify'],
+}
+
+export type ValidationParam = {
+  param_key: string,
+  required: boolean,
+  type: string,
+  validator_functions?: ((param: any) => boolean)[]
 }
