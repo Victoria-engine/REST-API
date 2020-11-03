@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { JWTTokenVerify } from '../../middleware'
+import { jwtVerify } from '../../middleware'
 import { validateParams } from '../../middleware/paramValidation'
 import { createPost, getAuthorPosts, getPostByID } from '../../services/post/methods'
 import { AuthenticatedRequest } from '../../types'
@@ -40,7 +40,7 @@ export default [
     path: '/post',
     method: 'post',
     handler: [
-      JWTTokenVerify,
+      jwtVerify,
       validateParams([
         {
           param_key: 'title',

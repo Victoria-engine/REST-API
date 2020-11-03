@@ -3,9 +3,9 @@ import {
   handleCompression,
   handleCors,
 } from './common'
-import { JWTTokenVerify } from './gateKeeper'
+import { jwtVerify } from './jwtVerify'
 
-export { JWTTokenVerify }
+export { jwtVerify }
 
 export default [
   handleBodyRequestParsing,

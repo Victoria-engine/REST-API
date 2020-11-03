@@ -1,9 +1,14 @@
 import { NextFunction, Request, Response } from 'express'
+import { ACCESS_TOKEN_COOKIE_KEY, REFRESH_TOKEN_COOKIE_KEY } from '../../globals'
 import { validateParams } from '../../middleware/paramValidation'
-import { loginUser } from '../../services/auth/methods'
+import { jwtService } from '../../services/auth/jwt/jwt'
+import { loginUser } from '../../services/auth/oauth2/login'
 import { GoogleSerivce } from '../../services/auth/oauth2/google'
 import { createUser, getUserByGoogleID } from '../../services/user/methods'
-import { HTTP400Error } from '../../util/errors/httpErrors'
+import { HTTP400Error, HTTP401Error } from '../../util/errors/httpErrors'
+import refreshTokenMethods from '../../services/auth/oauth2/refreshToken'
+import { createAccessToken, getTokenExpirationDate } from '../../services/auth/oauth2/methods'
+import { DecodedToken } from '../../types'
 
 export default [
   {
@@ -71,7 +76,7 @@ export default [
     ],
   },
   {
-    path: '/auth/login',
+    path: '/auth/session',
     method: 'post',
     handler: [
       validateParams([
@@ -92,11 +97,67 @@ export default [
       async (req: Request, res: Response, next: NextFunction) => {
         const { email, password } = req.body
         try {
-          const accessToken = await loginUser({ email, password })
+          const { accessToken, refreshToken } = await loginUser({ email, password })
 
-          res.status(200).json({
-            access_token: accessToken,
-          })
+          res.status(200)
+            .cookie(ACCESS_TOKEN_COOKIE_KEY, accessToken.token,
+              {
+                secure: true, httpOnly: true,
+                expires: getTokenExpirationDate(accessToken)
+              })
+            .cookie(REFRESH_TOKEN_COOKIE_KEY, refreshToken.token,
+              {
+                secure: true, httpOnly: true,
+                expires: getTokenExpirationDate(refreshToken)
+              })
+            .json({
+              message: 'success',
+            })
+        } catch (err) {
+          next(err)
+        }
+      },
+    ],
+  },
+  {
+    path: '/auth/refresh',
+    method: 'get',
+    handler: [
+      async (req: Request, res: Response, next: NextFunction) => {
+        try {
+          const refreshToken = jwtService.getTokenFromRequest(req)
+          let decodedToken: DecodedToken
+
+          // verify the refresh token
+          try {
+            decodedToken = jwtService.verify(refreshToken) as DecodedToken
+            if (!decodedToken.id) {
+              throw new Error('user id not found in access token')
+            }
+          }
+          catch (err) {
+            // if the refresh token is invalid the client has to login again
+            throw new HTTP401Error('invalid refresh token')
+          }
+
+          const userID = decodedToken.id.toString()
+
+          const dbRefreshTokenEntity = await refreshTokenMethods.get(refreshToken)
+          if (!dbRefreshTokenEntity) {
+            throw new HTTP401Error('refresh token does not exist')
+          }
+
+          const newToken = await createAccessToken({ email: decodedToken.email, id: userID })
+
+          res.status(200)
+            .cookie(ACCESS_TOKEN_COOKIE_KEY, newToken.token,
+              {
+                secure: true, httpOnly: true,
+                expires: getTokenExpirationDate(newToken)
+              })
+            .json({
+              message: 'success',
+            })
         } catch (err) {
           next(err)
         }
@@ -111,9 +172,6 @@ export default [
         try {
           throw new Error('Not implememented!')
         } catch (err) {
-          res.status(401).json({
-            message: err.message,
-          })
           next(err)
         }
       },
