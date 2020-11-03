@@ -1,6 +1,7 @@
 import { Bookshelf } from '../conn/knex'
 import Post from './post'
 
+
 class User extends Bookshelf.Model<User> {
   get tableName() { return 'user' }
   get hasTimestamps() { return true }

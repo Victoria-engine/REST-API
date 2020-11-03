@@ -3,6 +3,7 @@ import { createUser, getAllUsers } from '../../services/user/methods'
 import { present } from '../../services/user/presenters'
 
 export default [
+  // TODO: When deleting a user, remove all the tokens from the database
   {
     path: '/users',
     method: 'get',

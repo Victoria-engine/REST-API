@@ -1,10 +1,8 @@
 import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
-import { LoginStragegies, LoginStrategy, LoginUserPayload } from '../../types'
-import { HTTP401Error, HTTP404Error } from '../../util/errors/httpErrors'
-import { getUserByEmail, getUserByGoogleID } from '../user/methods'
-
-const { JWT_SECRET } = process.env
+import { LoginStragegies, LoginStrategy, LoginUserPayload } from '../../../types'
+import { HTTP401Error, HTTP404Error } from '../../../util/errors/httpErrors'
+import { getUserByEmail, getUserByGoogleID } from '../../user/methods'
+import { createAccessToken, createRefreshToken } from './methods'
 
 
 const InternalLoginStrategy: LoginStrategy = {
@@ -12,10 +10,6 @@ const InternalLoginStrategy: LoginStrategy = {
   getUser: async (email: string) => await getUserByEmail(email),
   login: async (credentials) => {
     const { email, password } = credentials
-
-    if (!JWT_SECRET) {
-      throw new Error('no JWT Secret')
-    }
 
     const user = await getUserByEmail(email)
 
@@ -25,17 +19,16 @@ const InternalLoginStrategy: LoginStrategy = {
 
     // Validate password against the hashed one
     const comparePasswords = await bcrypt.compare(password, user.password)
-
     if (!comparePasswords) {
       throw new HTTP401Error('wrong password')
     }
 
-    const accessToken = jwt.sign({ email, id: user.id.toString() },
-      JWT_SECRET, {
-      expiresIn: '7d',
-    })
+    const tokenPayload = { email, id: user.id.toString() }
 
-    return accessToken
+    const accessToken = await createAccessToken(tokenPayload)
+    const refreshToken = await createRefreshToken(tokenPayload)
+
+    return { accessToken, refreshToken }
   }
 }
 
@@ -50,18 +43,14 @@ const GoogleOAuth2LoginStrategy: LoginStrategy = {
         throw new Error('google user does not have a google_id, wrong login strategy')
       }
 
-      if (!JWT_SECRET) {
-        throw new Error('no JWT Secret')
-      }
-
       const user = await getUserByGoogleID(google_id)
 
-      const accessToken = jwt.sign({ email, id: user.id.toString() },
-        JWT_SECRET, {
-        expiresIn: '7d', // TODO: Make sure google expires rate is time
-      })
+      const tokenPayload = { email, id: user.id.toString() }
 
-      return accessToken
+      const accessToken = await createAccessToken(tokenPayload)
+      const refreshToken = await createRefreshToken(tokenPayload)
+
+      return { accessToken, refreshToken }
     } catch (err) {
       throw new Error(err)
     }
@@ -80,9 +69,9 @@ export const loginUser = async (credentials: LoginUserPayload) => {
   if (!userIdentifier) {
     throw new HTTP404Error('missing args')
   }
-  const getUserStrategy = google_id ? LoginStragegies.OAUTH2_GOOGLE : LoginStragegies.INTERNAL
-  const strategy = LoginStrategyHandler[getUserStrategy]
+  const loginContext = google_id ? LoginStragegies.OAUTH2_GOOGLE : LoginStragegies.INTERNAL
+  const loginStrategy = LoginStrategyHandler[loginContext]
 
-  const accesToken = await strategy.login(credentials)
-  return accesToken
+  const accessTokens = await loginStrategy.login(credentials)
+  return accessTokens
 }

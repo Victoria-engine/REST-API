@@ -1,5 +1,5 @@
 import { Request } from 'express'
-import jwt from 'jsonwebtoken'
+import { SignOptions, VerifyOptions } from 'jsonwebtoken'
 import User from './models/user'
 
 export interface AuthenticatedRequest extends Request {
@@ -8,11 +8,12 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export type LoginUserPayload = { email: string, password?: string, google_id?: string }
+export type JWTToken = { token: string, expiresIn: number }
 
 export interface LoginStrategy {
   identifier: string,
   getUser: (identifier: string) => Promise<User | null>,
-  login: (credentials: LoginUserPayload) => string | Promise<string>,
+  login: (credentials: LoginUserPayload) => Promise<{ accessToken: JWTToken; refreshToken: JWTToken; }>,
 }
 export enum LoginStragegies {
   OAUTH2_GOOGLE = 'oauth2_google',
@@ -30,7 +31,11 @@ export interface GoogleService {
 }
 
 export interface JWTService {
-  verify: typeof jwt['verify'],
+  decode: (token: string) => string | { [key: string]: any; } | null
+  sign: (payload: string | Buffer | Record<string, unknown>, options?: SignOptions) => string,
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  verify: (token: string, options?: VerifyOptions | undefined) => string | object
+  getTokenFromRequest: (request: Request) => string,
 }
 
 export type ValidationParam = {
@@ -41,3 +46,9 @@ export type ValidationParam = {
 }
 
 export type PostVisibility = 'public' | 'not-listed' | 'private'
+
+export type DecodedToken = {
+  id: string,
+  email: string,
+  jti: string
+}

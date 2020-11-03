@@ -2,7 +2,7 @@ import request from 'supertest'
 import Server from '../../server'
 import mockKnex from 'mock-knex'
 import Post from '../../models/post'
-import { jwtService } from '../../middleware/gateKeeper'
+import { jwtService } from '../../services/auth/jwt/jwt'
 
 const tracker = mockKnex.getTracker()
 
@@ -85,7 +85,7 @@ describe('POST /post', () => {
     const res = await mockServer.post('/post')
 
     expect(res.status).toEqual(401)
-    expect(res.body.message).toEqual('no Authorization header')
+    expect(res.body.message).toEqual('no authorization header or cookie, please refer to the documentation')
   })
 
   it('should return 400 for invalid args', async () => {

@@ -5,14 +5,15 @@ import mockKnex from 'mock-knex'
 import { LoginUserPayload } from '../../types'
 import User from '../../models/user'
 import { GoogleSerivce } from '../../services/auth/oauth2/google'
+import { REFRESH_TOKEN_COOKIE_KEY } from '../../globals'
 
 const tracker = mockKnex.getTracker()
 
 describe('Auth', () => {
   const mockServer = request(Server.init())
 
-  describe('Internal', () => {
-    describe('POST /auth/login', () => {
+  describe('Internal OAuth', () => {
+    describe('POST /auth/session', () => {
       tracker.install()
 
       afterAll(() => tracker.uninstall())
@@ -30,7 +31,7 @@ describe('Auth', () => {
           ])
         })
 
-        const res = await mockServer.post('/auth/login')
+        const res = await mockServer.post('/auth/session')
           .send({
             email: 'stub@mail.com',
             password: 'stub',
@@ -47,7 +48,7 @@ describe('Auth', () => {
           query.response([])
         })
 
-        const res = await mockServer.post('/auth/login')
+        const res = await mockServer.post('/auth/session')
           .send({
             email: 'stub@mail.com',
             password: 'stub',
@@ -58,7 +59,7 @@ describe('Auth', () => {
         expect(res.body.message).toEqual('no user found with such credentials')
       })
 
-      it('should return 200 for a successfull login and an access token', async () => {
+      it('should return 200 for a successfull login and an access and refresh tokens', async () => {
         // Mock knex layer
         tracker.on('query', (query) => {
           query.response([{
@@ -69,21 +70,75 @@ describe('Auth', () => {
           } as User])
         })
 
-        const res = await mockServer.post('/auth/login')
+        const res = await mockServer.post('/auth/session')
           .send({
             email: 'stub@mail.com',
             password: 'stub',
             google_id: '',
           } as LoginUserPayload)
 
+        const cookiesHeader = res.headers['set-cookie']
+        const accessToken = cookiesHeader[0]
+        const refreshToken = cookiesHeader[1]
+
         expect(res.status).toEqual(200)
-        expect(res.body.access_token).toBeTruthy()
+        expect(accessToken).toBeTruthy()
+        expect(refreshToken).toBeTruthy()
+      })
+
+
+      it('should return 200 for a successfull refresh and a new access token', async () => {
+        // LOGIN
+        tracker.on('query', (query) => {
+          query.response([{
+            email: 'stub@mail.com',
+            password: bcrypt.hashSync('stub', 1),
+            id: 1,
+            name: 'stub name',
+          } as User])
+        })
+
+        const res = await mockServer.post('/auth/session')
+          .send({
+            email: 'stub@mail.com',
+            password: 'stub',
+            google_id: '',
+          } as LoginUserPayload)
+
+        const cookiesHeader = res.headers['set-cookie']
+        const refreshToken = (cookiesHeader[1] as string)
+          .slice(REFRESH_TOKEN_COOKIE_KEY.length + 1)
+          .split(';')[0]
+
+        const newRes = await mockServer.get('/auth/refresh')
+          .set('Authorization', `Bearer ${refreshToken}`)
+
+        expect(newRes.status).toEqual(200)
+
+        const newCookiesHeader = newRes.headers['set-cookie']
+        const newAccessToken = newCookiesHeader[0]
+
+        expect(newAccessToken).toBeTruthy()
+      })
+    })
+
+    describe('POST /auth/refresh', () => {
+      tracker.install()
+
+      afterAll(() => tracker.uninstall())
+
+      it('should return 401 for an invalid refresh token', async () => {
+        const res = await mockServer.get('/auth/refresh')
+          .set('Authorization', 'Bearer some-refresh-token')
+
+        expect(res.status).toEqual(401)
+        expect(res.body.message).toEqual('invalid refresh token')
       })
     })
   })
 
   describe('Google OAuth2', () => {
-    describe('POST /auth/login', () => {
+    describe('POST /auth/session', () => {
       tracker.install()
 
       // Mock google service methods
