@@ -3,6 +3,7 @@ import Server from '../../server'
 import mockKnex from 'mock-knex'
 import Post from '../../models/post'
 import { jwtService } from '../../services/auth/jwt/jwt'
+import { accessTokenRepository } from '../../services/auth/oauth2/accessToken'
 
 const tracker = mockKnex.getTracker()
 
@@ -83,15 +84,23 @@ describe('POST /post', () => {
 
   it('should return 401 for invalid authentication', async () => {
     const res = await mockServer.post('/post')
+      .send({
+        title: 'some title',
+        text: 'some text'
+      })
 
     expect(res.status).toEqual(401)
-    expect(res.body.message).toEqual('no authorization header or cookie, please refer to the documentation')
+    expect(res.body.message.includes('no authorization header or cookie, please refer to the documentation')).toBeTruthy()
   })
 
   it('should return 400 for invalid args', async () => {
     // mock JWT service
     jwtService.verify = jest.fn().mockImplementation(() => ({
       id: 'some-user-id'
+    }))
+    // mock Access Token repository
+    accessTokenRepository.get = jest.fn().mockImplementation(() => ({
+      accessToken: 'some-valid-token'
     }))
 
     const res = await mockServer.post('/post')

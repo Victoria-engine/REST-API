@@ -30,7 +30,7 @@ const verify = (token: string, options?: VerifyOptions) => {
       algorithms: ['RS256'],
     })
   } catch (err) {
-    throw new HTTP401Error('expired token')
+    throw new HTTP401Error('expired_token')
   }
 }
 

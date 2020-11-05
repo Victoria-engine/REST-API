@@ -1,9 +1,9 @@
 import Post from '../../models/post'
 import { HTTP404Error } from '../../util/errors/httpErrors'
 
-export type CreatePostPayload = { title: string, text: string, author_id: string }
+export type CreatePostPayload = { title: string, text: string, user_id: string }
 export const createPost = async (args: CreatePostPayload) => {
-  if (!args.author_id || !args.text) return
+  if (!args.user_id || !args.text) return
 
   try {
     return await new Post(args).save()

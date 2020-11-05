@@ -3,7 +3,6 @@ import { jwtVerify } from '../../middleware'
 import { validateParams } from '../../middleware/paramValidation'
 import { createPost, getAuthorPosts, getPostByID } from '../../services/post/methods'
 import { AuthenticatedRequest } from '../../types'
-import { HTTP401Error } from '../../util/errors/httpErrors'
 
 export default [
   {
@@ -57,15 +56,11 @@ export default [
       ]),
 
       async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        const { userID = '' } = req
         const { title, text } = req.body
 
         try {
-          const { userID } = req
-          if (!userID) {
-            throw new HTTP401Error('invalid auth, no user ID in request context')
-          }
-
-          const freshPost = await createPost({ title, text, author_id: userID })
+          const freshPost = await createPost({ title, text, user_id: userID })
           res.status(200).json(freshPost)
         } catch (err) {
           res.status(401).json({

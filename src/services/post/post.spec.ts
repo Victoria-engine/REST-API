@@ -22,7 +22,7 @@ describe('createPost', () => {
   afterAll(() => tracker.uninstall())
 
   it('should return a post', async () => {
-    const res = await createPost({ author_id: '1', text: 'Sample text', title: 'Sample title' })
+    const res = await createPost({ user_id: '1', text: 'Sample text', title: 'Sample title' })
     expect(res?.title).toEqual('Sample title')
   })
 

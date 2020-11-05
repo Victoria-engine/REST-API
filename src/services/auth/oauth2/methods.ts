@@ -1,6 +1,7 @@
 import { JWTToken } from '../../../types'
 import { jwtService } from '../jwt/jwt'
-import refreshTokenMethods from './refreshToken'
+import { refreshTokenRepository } from './refreshToken'
+import { accessTokenRepository } from './accessToken'
 
 const { REFRESH_TOKEN_LIFE, ACCESS_TOKEN_LIFE } = process.env
 
@@ -16,7 +17,7 @@ export const createRefreshToken = async ({ email, id }: CreateTokenPayload) => {
     )
 
     // Store the resfresh token
-    await refreshTokenMethods.save({
+    await refreshTokenRepository.save({
       token: refreshToken,
       userID: id,
       expirationDate: new Date(Date.now() + (expiresIn * 1000)),
@@ -41,7 +42,11 @@ export const createAccessToken = async ({ email, id }: CreateTokenPayload) => {
       },
     )
 
-    // TODO: Store the access token ?
+    await accessTokenRepository.save({
+      token: accessToken,
+      userID: id,
+      expirationDate: new Date(Date.now() + (expiresIn * 1000)),
+    })
 
     return { token: accessToken, expiresIn }
   } catch (err) {

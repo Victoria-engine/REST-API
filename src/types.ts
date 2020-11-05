@@ -1,5 +1,7 @@
 import { Request } from 'express'
 import { SignOptions, VerifyOptions } from 'jsonwebtoken'
+import AccessToken from './models/accessToken'
+import RefreshToken from './models/refreshToken'
 import User from './models/user'
 
 export interface AuthenticatedRequest extends Request {
@@ -51,4 +53,16 @@ export type DecodedToken = {
   id: string,
   email: string,
   jti: string
+}
+
+export type SaveAccessTokenPayload = { token: string, userID: string, expirationDate: Date }
+
+export interface AccessTokenRepository {
+  get: (accessToken: string) => Promise<AccessToken>
+  save: (payload: SaveAccessTokenPayload) => Promise<AccessToken>
+}
+
+export interface RefreshTokenRepository {
+  get: (refrshToken: string) => Promise<RefreshToken>
+  save: (payload: SaveAccessTokenPayload) => Promise<RefreshToken>
 }

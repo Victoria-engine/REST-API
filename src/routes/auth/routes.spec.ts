@@ -110,7 +110,7 @@ describe('Auth', () => {
           .slice(REFRESH_TOKEN_COOKIE_KEY.length + 1)
           .split(';')[0]
 
-        const newRes = await mockServer.get('/auth/refresh')
+        const newRes = await mockServer.post('/auth/refresh')
           .set('Authorization', `Bearer ${refreshToken}`)
 
         expect(newRes.status).toEqual(200)
@@ -128,7 +128,7 @@ describe('Auth', () => {
       afterAll(() => tracker.uninstall())
 
       it('should return 401 for an invalid refresh token', async () => {
-        const res = await mockServer.get('/auth/refresh')
+        const res = await mockServer.post('/auth/refresh')
           .set('Authorization', 'Bearer some-refresh-token')
 
         expect(res.status).toEqual(401)
@@ -150,20 +150,18 @@ describe('Auth', () => {
 
       afterAll(() => tracker.uninstall())
 
-      it('should return 400 bad request if missing a google token', async () => {
+      it('should return 401 if missing a google token', async () => {
         const res = await mockServer.post('/auth/google')
 
-        expect(res.status).toEqual(400)
-        expect(res.body.message).toEqual('missing parameter access_token')
+        expect(res.body.message).toEqual('no authorization header or cookie, please refer to the documentation')
+        expect(res.status).toEqual(401)
       })
 
-      it('should return 500 bad request if the google providers fails', async () => {
+      it('should fail if the google token is invalid', async () => {
         GoogleSerivce.getUserData = jest.fn().mockImplementation(() => null)
 
         const res = await mockServer.post('/auth/google')
-          .send({
-            access_token: 'some-googe-provided-token'
-          })
+          .set('Authorization', 'Bearer some-invalid-token')
 
         expect(res.status).toEqual(500)
         expect(res.body.message).toEqual('failed getting user data from google oauth2')

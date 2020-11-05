@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from 'express'
 import { ACCESS_TOKEN_COOKIE_KEY, REFRESH_TOKEN_COOKIE_KEY } from '../../globals'
 import { validateParams } from '../../middleware/paramValidation'
-import { jwtService } from '../../services/auth/jwt/jwt'
+import { getTokenFromRequest, jwtService } from '../../services/auth/jwt/jwt'
 import { loginUser } from '../../services/auth/oauth2/login'
 import { GoogleSerivce } from '../../services/auth/oauth2/google'
 import { createUser, getUserByGoogleID } from '../../services/user/methods'
-import { HTTP400Error, HTTP401Error } from '../../util/errors/httpErrors'
-import refreshTokenMethods from '../../services/auth/oauth2/refreshToken'
+import { HTTP401Error } from '../../util/errors/httpErrors'
+import { refreshTokenRepository } from '../../services/auth/oauth2/refreshToken'
 import { createAccessToken, getTokenExpirationDate } from '../../services/auth/oauth2/methods'
 import { DecodedToken } from '../../types'
 
@@ -15,23 +15,14 @@ export default [
     path: '/auth/google',
     method: 'post',
     handler: [
-      validateParams([
-        {
-          param_key: 'access_token',
-          required: true,
-          type: 'string',
-        },
-      ]),
-
       async (req: Request, res: Response, next: NextFunction) => {
-        const { access_token } = req.body
-
         try {
-          if (!access_token) {
-            throw new HTTP400Error('missing google access_token')
+          const reqAccessToken = getTokenFromRequest(req)
+          if (!reqAccessToken) {
+            throw new HTTP401Error('missing google access_token')
           }
 
-          const userData = await GoogleSerivce.getUserData(access_token)
+          const userData = await GoogleSerivce.getUserData(reqAccessToken)
           if (!userData) {
             throw new Error('failed getting user data from google oauth2')
           }
@@ -61,14 +52,29 @@ export default [
             return
           }
 
-          const accessToken = await loginUser({
+          const { accessToken, refreshToken } = await loginUser({
             email: userData.email,
             google_id: userData.id,
           })
 
-          res.status(200).json({
-            access_token: accessToken,
-          })
+          res.status(200)
+            .cookie(ACCESS_TOKEN_COOKIE_KEY, accessToken.token,
+              {
+                secure: true, httpOnly: true,
+                expires: getTokenExpirationDate(accessToken)
+              })
+            .cookie(REFRESH_TOKEN_COOKIE_KEY, refreshToken.token,
+              {
+                secure: true, httpOnly: true,
+                expires: getTokenExpirationDate(refreshToken)
+              })
+            .json({
+              access_token: accessToken.token,
+              expiresIn: accessToken.expiresIn,
+              refresh_token: refreshToken.token,
+              scope: '*',
+              token_type: 'Bearer',
+            })
         } catch (err) {
           next(err)
         }
@@ -111,7 +117,11 @@ export default [
                 expires: getTokenExpirationDate(refreshToken)
               })
             .json({
-              message: 'success',
+              access_token: accessToken.token,
+              expiresIn: accessToken.expiresIn,
+              refresh_token: refreshToken.token,
+              scope: '*',
+              token_type: 'Bearer',
             })
         } catch (err) {
           next(err)
@@ -121,7 +131,7 @@ export default [
   },
   {
     path: '/auth/refresh',
-    method: 'get',
+    method: 'post',
     handler: [
       async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -142,7 +152,7 @@ export default [
 
           const userID = decodedToken.id.toString()
 
-          const dbRefreshTokenEntity = await refreshTokenMethods.get(refreshToken)
+          const dbRefreshTokenEntity = await refreshTokenRepository.get(refreshToken)
           if (!dbRefreshTokenEntity) {
             throw new HTTP401Error('refresh token does not exist')
           }
@@ -156,7 +166,10 @@ export default [
                 expires: getTokenExpirationDate(newToken)
               })
             .json({
-              message: 'success',
+              access_token: newToken.token,
+              expiresIn: newToken.expiresIn,
+              scope: '*',
+              token_type: 'Bearer',
             })
         } catch (err) {
           next(err)

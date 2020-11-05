@@ -1,4 +1,5 @@
 import RefreshToken from '../../../models/refreshToken'
+import { RefreshTokenRepository } from '../../../types'
 import { jwtService } from '../jwt/jwt'
 
 
@@ -34,7 +35,8 @@ const get = async (refreshToken: string) => {
   }
 }
 
-export default {
-  save,
+
+export const refreshTokenRepository: RefreshTokenRepository = {
   get,
+  save,
 }
