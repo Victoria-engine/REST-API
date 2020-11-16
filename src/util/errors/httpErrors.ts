@@ -1,5 +1,5 @@
 export abstract class HTTPClientError extends Error {
-  readonly statusCode!: number
+  statusCode!: number
   readonly name!: string
 
   constructor(message: Record<string, unknown> | string) {
@@ -12,6 +12,16 @@ export abstract class HTTPClientError extends Error {
     Error.captureStackTrace(this, this.constructor)
   }
 }
+
+export class HTTPError extends HTTPClientError {
+
+  constructor(message: string | Record<string, unknown> = 'Bad Request', statusCode = 500) {
+    super(message)
+
+    this.statusCode = statusCode
+  }
+}
+
 
 export class HTTP400Error extends HTTPClientError {
   readonly statusCode = 400

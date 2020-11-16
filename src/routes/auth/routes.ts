@@ -17,12 +17,12 @@ export default [
     handler: [
       async (req: Request, res: Response, next: NextFunction) => {
         try {
-          const reqAccessToken = getTokenFromRequest(req)
-          if (!reqAccessToken) {
+          const reqGoogleAccessToken = getTokenFromRequest(req)
+          if (!reqGoogleAccessToken) {
             throw new HTTP401Error('missing google access_token')
           }
 
-          const userData = await GoogleSerivce.getUserData(reqAccessToken)
+          const userData = await GoogleSerivce.getUserData(reqGoogleAccessToken)
           if (!userData) {
             throw new Error('failed getting user data from google oauth2')
           }
@@ -177,7 +177,7 @@ export default [
       },
     ],
   },
-  {
+/*   {
     path: '/auth/register',
     method: 'post',
     handler: [
@@ -189,5 +189,5 @@ export default [
         }
       },
     ],
-  }
+  } */
 ]

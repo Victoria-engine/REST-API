@@ -10,10 +10,7 @@ class RefreshToken extends Bookshelf.Model<RefreshToken> {
   public get user_id(): Date { return this.get('user_id') }
 
   user() {
-    return this.belongsTo(User)
-      .query((qb) => {
-        qb.whereNull('user.deleted_at')
-      })
+    return this.belongsTo(User).query()
   }
 }
 

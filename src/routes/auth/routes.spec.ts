@@ -5,7 +5,7 @@ import mockKnex from 'mock-knex'
 import { LoginUserPayload } from '../../types'
 import User from '../../models/user'
 import { GoogleSerivce } from '../../services/auth/oauth2/google'
-import { REFRESH_TOKEN_COOKIE_KEY } from '../../globals'
+import { ERRORS_MSG, REFRESH_TOKEN_COOKIE_KEY } from '../../globals'
 
 const tracker = mockKnex.getTracker()
 
@@ -153,7 +153,7 @@ describe('Auth', () => {
       it('should return 401 if missing a google token', async () => {
         const res = await mockServer.post('/auth/google')
 
-        expect(res.body.message).toEqual('no authorization header or cookie, please refer to the documentation')
+        expect(res.body.message).toEqual(ERRORS_MSG.MISSING_AUTH)
         expect(res.status).toEqual(401)
       })
 

@@ -13,7 +13,7 @@ class User extends Bookshelf.Model<User> {
   public get password(): string | null { return this.get('password') }
 
   posts() {
-    return this.hasMany(Post)
+    return this.hasMany(Post).query()
   }
 }
 

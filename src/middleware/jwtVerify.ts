@@ -6,12 +6,11 @@ import { accessTokenRepository } from '../services/auth/oauth2/accessToken'
 
 
 /** Require JWT auth middleware layer */
-export const jwtVerify = async (req: Request, res: Response, next: NextFunction) => {
+const verifyJWT = async (req: Request, res: Response, next: NextFunction) => {
   let accessToken
   try {
     accessToken = jwtService.getTokenFromRequest(req)
   } catch (err) {
-    console.log(err)
     res.status(401).json({ message: err.message || 'unexpected error while parsing the token' })
     return
   }
@@ -38,3 +37,5 @@ export const jwtVerify = async (req: Request, res: Response, next: NextFunction)
 
   next()
 }
+
+export default verifyJWT

@@ -6,10 +6,7 @@ class AccessToken extends Bookshelf.Model<AccessToken> {
   get hasTimestamps() { return true }
 
   user() {
-    return this.belongsTo(User)
-      .query((qb) => {
-        qb.whereNull('user.deleted_at')
-      })
+    return this.belongsTo(User).query()
   }
 }
 

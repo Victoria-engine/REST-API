@@ -17,14 +17,16 @@ export const createUser = async (args: CreateUserPayload) => {
 }
 
 export const getUserByID = async (id: string) => {
-  const user = await User.where<User>({ id }).fetch()
-  return user
+  try {
+    return await User.where<User>({ id }).fetch()
+  } catch (err) {
+    throw new Error(err)
+  }
 }
 
 export const getUserByEmail = async (email: string) => {
   try {
-    const user = await User.where<User>({ email }).fetch()
-    return user
+    return await User.where<User>({ email }).fetch()
   } catch (err) {
     throw new HTTP401Error('no user found with such credentials')
   }
@@ -32,8 +34,7 @@ export const getUserByEmail = async (email: string) => {
 
 export const getUserByGoogleID = async (google_id: string) => {
   try {
-    const user = await User.where<User>({ google_id }).fetch()
-    return user
+    return await User.where<User>({ google_id }).fetch()
   } catch (err) {
     throw new HTTP401Error('no google user found with such credentials')
   }

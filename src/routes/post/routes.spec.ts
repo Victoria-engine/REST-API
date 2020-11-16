@@ -4,6 +4,9 @@ import mockKnex from 'mock-knex'
 import Post from '../../models/post'
 import { jwtService } from '../../services/auth/jwt/jwt'
 import { accessTokenRepository } from '../../services/auth/oauth2/accessToken'
+import { ERRORS_MSG } from '../../globals'
+import { mockJWTVerifyMiddleware } from '../../util/mocks'
+
 
 const tracker = mockKnex.getTracker()
 
@@ -90,18 +93,11 @@ describe('POST /post', () => {
       })
 
     expect(res.status).toEqual(401)
-    expect(res.body.message.includes('no authorization header or cookie, please refer to the documentation')).toBeTruthy()
+    expect(res.body.message.includes(ERRORS_MSG.MISSING_AUTH)).toBeTruthy()
   })
 
   it('should return 400 for invalid args', async () => {
-    // mock JWT service
-    jwtService.verify = jest.fn().mockImplementation(() => ({
-      id: 'some-user-id'
-    }))
-    // mock Access Token repository
-    accessTokenRepository.get = jest.fn().mockImplementation(() => ({
-      accessToken: 'some-valid-token'
-    }))
+    mockJWTVerifyMiddleware()
 
     const res = await mockServer.post('/post')
       .set('Authorization', 'Bearer some-stub-token')

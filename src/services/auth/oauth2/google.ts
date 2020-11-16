@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { GoogleService, GoogleUserData } from '../../../types'
 
+
 const getUserData = async (access_token: string) => {
   try {
     const { data } = await axios({
@@ -18,9 +19,5 @@ const getUserData = async (access_token: string) => {
 }
 
 export const GoogleSerivce: GoogleService = {
-  getUserData: getUserData,
-}
-
-export default {
   getUserData,
 }

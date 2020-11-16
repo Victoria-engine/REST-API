@@ -12,7 +12,7 @@ let Knex
 if (environment === 'test') {
   Knex = knex({
     client: 'mysql',
-    debug: false,
+    debug: true, // set it `true` for finner test debug
   })
   mockKnex.mock(Knex)
 } else {

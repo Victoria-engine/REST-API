@@ -5,10 +5,12 @@ import jsonwebtoken, { SignOptions, VerifyOptions } from 'jsonwebtoken'
 import { HTTP401Error } from '../../../util/errors/httpErrors'
 import { JWTService } from '../../../types'
 import { Request } from 'express'
-import { ACCESS_TOKEN_COOKIE_KEY } from '../../../globals'
+import { ACCESS_TOKEN_COOKIE_KEY, ERRORS_MSG } from '../../../globals'
 
 const privateKey = fs.readFileSync(path.join(process.cwd(), 'certificates/private.key'))
 const publicKey = fs.readFileSync(path.join(process.cwd(), 'certificates/public.key'))
+
+
 
 
 const sign = (payload: string | Buffer | Record<string, unknown>, options?: SignOptions) => {
@@ -51,7 +53,7 @@ export const getTokenFromRequest = (req: Request): string => {
   }
 
   if (!authHeader) {
-    throw new HTTP401Error('no authorization header or cookie, please refer to the documentation')
+    throw new HTTP401Error(ERRORS_MSG.MISSING_AUTH)
   }
 
   if (!authHeader.startsWith('Bearer ')) {
