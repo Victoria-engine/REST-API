@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { verifyJWT } from '../../middleware'
 import { validateParams } from '../../middleware/paramValidation'
+import { getBlogFromContentKey } from '../../services/blog/methods'
 import { createPost, getAuthorPosts, getPostByID } from '../../services/post/methods'
 import { presentPost } from '../../services/post/presenters'
 import { getUserByID } from '../../services/user/methods'
@@ -15,8 +16,15 @@ export default [
       async (req: Request, res: Response, next: NextFunction) => {
         const { postID } = req.params
         try {
-          const post = await getPostByID(postID)
-          res.status(200).json(post)
+          const queryKey = req.query['key']?.toString()
+          if (!queryKey) {
+            throw new HTTP400Error('consumer key was not found in the query params')
+          }
+
+          const blog = await getBlogFromContentKey(queryKey)
+
+          const post = await getPostByID(postID, blog.id)
+          res.status(200).json(presentPost(post))
         } catch (err) {
           next(err)
         }

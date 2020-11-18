@@ -1,7 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 import { verifyJWT } from '../../middleware'
 import { validateParams } from '../../middleware/paramValidation'
-import { createBlog, createConsumerKey, deleteBlog, getBlogByID, getBlogFromContentKey, updateBlog } from '../../services/blog/methods'
+import {
+  createBlog, createConsumerKey, deleteBlog, getBlogByID,
+  getBlogFromContentKey, updateBlog
+} from '../../services/blog/methods'
 import { presentBlog } from '../../services/blog/presenters'
 import { getUserByID, updateUser } from '../../services/user/methods'
 import { AuthenticatedRequest } from '../../types'

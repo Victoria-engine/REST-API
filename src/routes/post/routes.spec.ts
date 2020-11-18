@@ -2,8 +2,6 @@ import request from 'supertest'
 import Server from '../../server'
 import mockKnex from 'mock-knex'
 import Post from '../../models/post'
-import { jwtService } from '../../services/auth/jwt/jwt'
-import { accessTokenRepository } from '../../services/auth/oauth2/accessToken'
 import { ERRORS_MSG } from '../../globals'
 import { mockJWTVerifyMiddleware } from '../../util/mocks'
 

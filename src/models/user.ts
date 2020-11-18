@@ -1,5 +1,4 @@
 import { Bookshelf } from '../conn/knex'
-import Blog from './blog'
 
 
 class User extends Bookshelf.Model<User> {

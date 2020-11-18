@@ -12,11 +12,13 @@ export const createPost = async (args: CreatePostPayload) => {
   }
 }
 
-export const getPostByID = async (id: string) => {
+export const getPostByID = async (id: string, blog_id: string) => {
   try {
-    return await Post.where<Post>({ id }).fetch()
+    return await Post
+      .where<Post>({ id, blog_id })
+      .fetch()
   } catch (err) {
-    throw new HTTP404Error(`post with ID of ${id} does not exist`)
+    throw new HTTP404Error(`post with ID of ${id} does not exist on this blog`)
   }
 }
 
