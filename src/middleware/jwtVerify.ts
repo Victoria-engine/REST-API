@@ -7,35 +7,28 @@ import { accessTokenRepository } from '../services/auth/oauth2/accessToken'
 
 /** Require JWT auth middleware layer */
 const verifyJWT = async (req: Request, res: Response, next: NextFunction) => {
-  let accessToken
   try {
-    accessToken = jwtService.getTokenFromRequest(req)
-  } catch (err) {
-    res.status(401).json({ message: err.message || 'unexpected error while parsing the token' })
-    return
-  }
+    const accessToken = jwtService.getTokenFromRequest(req)
 
-  // JWT checksum
-  try {
+    // JWT checksum
     await accessTokenRepository.get(accessToken)
+
+    // throws an error if the token has expired or has a invalid signature
+    const decodedToken = await jwtService.verify(accessToken) as { id: string }
+    if (!decodedToken) {
+      throw new HTTP401Error('access_denied')
+    }
+    if (!decodedToken.id) {
+      throw new HTTP401Error('invalid access token, no user matches this token')
+    }
+
+    const authRequest = req as AuthenticatedRequest
+    authRequest.userID = decodedToken.id
+
+    next()
   } catch (err) {
-    res.status(401).json({ message: 'invalid access token' })
-    return
+    next(err)
   }
-
-  // throws an error if the token has expired or has a invalid signature
-  const decodedToken = jwtService.verify(accessToken) as { id: string }
-  if (!decodedToken) {
-    throw new HTTP401Error('access_denied')
-  }
-  if (!decodedToken.id) {
-    throw new HTTP401Error('invalid access token, no user matches this token')
-  }
-
-  const authRequest = req as AuthenticatedRequest
-  authRequest.userID = decodedToken.id
-
-  next()
 }
 
 export default verifyJWT
