@@ -66,3 +66,17 @@ export interface RefreshTokenRepository {
   get: (refrshToken: string) => Promise<RefreshToken>
   save: (payload: SaveAccessTokenPayload) => Promise<RefreshToken>
 }
+
+export type CreateUserPayload = { password?: string, email: string, name: string, google_id?: string }
+export type UpdateUserPayload = {
+  password?: string | null,
+  email?: string | null,
+  name?: string | null,
+  blog_id?: string | null,
+}
+
+export type CreateBlogPayload = { title: string, description: string, consumer_key_id: number }
+export type UpdateBlogPayload = {
+  title?: string | null,
+  description?: string | null,
+}

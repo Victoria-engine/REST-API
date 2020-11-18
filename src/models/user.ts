@@ -1,5 +1,5 @@
 import { Bookshelf } from '../conn/knex'
-import Post from './post'
+import Blog from './blog'
 
 
 class User extends Bookshelf.Model<User> {
@@ -12,9 +12,6 @@ class User extends Bookshelf.Model<User> {
   public get email(): string { return this.get('email') }
   public get password(): string | null { return this.get('password') }
 
-  posts() {
-    return this.hasMany(Post).query()
-  }
 }
 
 export default User

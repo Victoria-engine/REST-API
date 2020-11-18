@@ -1,5 +1,6 @@
 import AccessToken from '../../../models/accessToken'
 import { AccessTokenRepository, DecodedToken, SaveAccessTokenPayload } from '../../../types'
+import { HTTP401Error } from '../../../util/errors/httpErrors'
 import { jwtService } from '../jwt/jwt'
 
 const save = async ({ token, userID, expirationDate }: SaveAccessTokenPayload) => {
@@ -15,7 +16,7 @@ const save = async ({ token, userID, expirationDate }: SaveAccessTokenPayload) =
       expiration_date: expirationDate,
     }).save()
   } catch (err) {
-    throw new Error(err)
+    throw new HTTP401Error(err)
   }
 }
 
@@ -29,7 +30,7 @@ const get = async (accessToken: string) => {
 
     return await AccessToken.where<AccessToken>({ token: decodedToken.jti }).fetch()
   } catch (err) {
-    throw new Error('unable to find access token')
+    throw new HTTP401Error('invalid access token')
   }
 }
 

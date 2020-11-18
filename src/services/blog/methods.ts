@@ -2,6 +2,7 @@ import Blog from '../../models/blog'
 import { v4 as uuidv4 } from 'uuid'
 import ConsumerKey from '../../models/consumerKey'
 import { HTTP401Error } from '../../util/errors/httpErrors'
+import { CreateBlogPayload, UpdateBlogPayload } from '../../types'
 
 /**
  * Consumer keys allow the consumtion of public endpoints for the users
@@ -28,7 +29,6 @@ export const getConsumerKey = async (value: string) => {
   }
 }
 
-
 export const getBlogFromConsumerKey = async (consumerKeyID: string) => {
   try {
     return await Blog.where<Blog>({ consumer_key_id: consumerKeyID }).fetch()
@@ -37,7 +37,6 @@ export const getBlogFromConsumerKey = async (consumerKeyID: string) => {
   }
 }
 
-export type CreateBlogPayload = { title: string, description: string, consumer_key_id: number }
 export const createBlog = async (args: CreateBlogPayload) => {
   if (!args.consumer_key_id || !args.description || !args.title) return
 
@@ -48,10 +47,33 @@ export const createBlog = async (args: CreateBlogPayload) => {
   }
 }
 
+export const updateBlog = async (blog: Blog, args: UpdateBlogPayload) => {
+  try {
+    return await blog.save(args, { patch: true })
+  } catch (err) {
+    throw new Error(err)
+  }
+}
 
 export const getBlogFromContentKey = async (consumerKeyValue: string) => {
   // check if key exist in DB
   const consumerKey = await getConsumerKey(consumerKeyValue)
 
   return await getBlogFromConsumerKey(consumerKey.id)
+}
+
+export const getBlogByID = async (id: string) => {
+  try {
+    return await new Blog().where({ id }).fetch()
+  } catch (err) {
+    throw new Error(err)
+  }
+}
+
+export const deleteBlog = async (id: string) => {
+  try {
+    return await Blog.where<Blog>({ id }).destroy()
+  } catch (err) {
+    throw new Error(err)
+  }
 }

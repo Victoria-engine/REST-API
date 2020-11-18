@@ -2,7 +2,10 @@ import { NextFunction, Request, Response } from 'express'
 import { verifyJWT } from '../../middleware'
 import { validateParams } from '../../middleware/paramValidation'
 import { createPost, getAuthorPosts, getPostByID } from '../../services/post/methods'
+import { presentPost } from '../../services/post/presenters'
+import { getUserByID } from '../../services/user/methods'
 import { AuthenticatedRequest } from '../../types'
+import { HTTP400Error } from '../../util/errors/httpErrors'
 
 export default [
   {
@@ -53,6 +56,7 @@ export default [
           type: 'string',
           validator_functions: [(p) => p.length <= 100000]
         },
+        // TODO: Add description
       ]),
 
       async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -60,8 +64,23 @@ export default [
         const { title, text } = req.body
 
         try {
-          const freshPost = await createPost({ title, text, user_id: userID })
-          res.status(200).json(freshPost)
+          const user = await getUserByID(userID)
+
+          const blogID = user.blog_id
+          if (!blogID) {
+            throw new HTTP400Error('user does not have a blog')
+          }
+
+          const freshPost = await createPost({
+            title, text,
+            user_id: userID,
+            blog_id: blogID,
+          })
+          if (!freshPost) {
+            throw new Error('something went wrong when creating a post')
+          }
+
+          res.status(200).json(presentPost(freshPost))
         } catch (err) {
           res.status(401).json({
             message: err.message,

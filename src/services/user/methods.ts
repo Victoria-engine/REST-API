@@ -1,4 +1,5 @@
 import User from '../../models/user'
+import { CreateUserPayload, UpdateUserPayload } from '../../types'
 import { HTTP401Error } from '../../util/errors/httpErrors'
 
 export const getAllUsers = async () => {
@@ -7,10 +8,18 @@ export const getAllUsers = async () => {
   return users
 }
 
-export type CreateUserPayload = { password?: string, email: string, name: string, google_id?: string }
+
 export const createUser = async (args: CreateUserPayload) => {
   try {
     return await new User(args).save()
+  } catch (err) {
+    throw new Error(err)
+  }
+}
+
+export const updateUser = async (user: User, args: UpdateUserPayload) => {
+  try {
+    return await user.save(args, { patch: true })
   } catch (err) {
     throw new Error(err)
   }
