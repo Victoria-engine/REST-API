@@ -3,7 +3,7 @@ import { verifyJWT } from '../../middleware'
 import { validateParams } from '../../middleware/paramValidation'
 import {
   createBlog, createConsumerKey, deleteBlog, getBlogByID,
-  getBlogFromContentKey, updateBlog
+  getBlogFromContentKey, getConsumerKeyByID, updateBlog
 } from '../../services/blog/methods'
 import { presentBlog } from '../../services/blog/presenters'
 import { getUserByID, updateUser } from '../../services/user/methods'
@@ -163,6 +163,37 @@ export default [
             message: 'blog deleted',
             blogID: blogID,
           })
+        } catch (err) {
+          next(err)
+        }
+      }
+    ]
+  },
+  {
+    path: '/blog/key',
+    method: 'get',
+    handler: [
+      verifyJWT,
+
+      async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        const { userID = '' } = req
+
+        try {
+          console.log('getting user...')
+          const user = await getUserByID(userID)
+          console.log('got user...')
+          if (!user.blog_id) {
+            throw new HTTPError('user does not have a blog', 404)
+          }
+
+          const userBlog = await getBlogByID(user.blog_id)
+          if (!userBlog.consumerKeyID) {
+            throw new HTTPError('no consumer key found in requested blog', 404)
+          }
+
+          const userConsumerKey = await getConsumerKeyByID(userBlog.consumerKeyID)
+
+          res.status(200).json(userConsumerKey.value)
         } catch (err) {
           next(err)
         }

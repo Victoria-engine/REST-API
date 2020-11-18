@@ -29,6 +29,14 @@ export const getConsumerKey = async (value: string) => {
   }
 }
 
+export const getConsumerKeyByID = async (id: number) => {
+  try {
+    return await ConsumerKey.where<ConsumerKey>({ id }).fetch()
+  } catch (err) {
+    throw new HTTP401Error('no consumer key found with such id')
+  }
+}
+
 export const getBlogFromConsumerKey = async (consumerKeyID: string) => {
   try {
     return await Blog.where<Blog>({ consumer_key_id: consumerKeyID }).fetch()

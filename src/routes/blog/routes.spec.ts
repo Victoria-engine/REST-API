@@ -101,4 +101,21 @@ describe('Blog', () => {
       expect(res2.status).toEqual(400)
     })
   })
+
+  describe('GET /blog/key', () => {
+    const tracker = mockKnex.getTracker()
+    const mockServer = request(Server.init())
+
+    tracker.install()
+
+
+    afterAll(() => tracker.uninstall())
+
+    it('should return 401 if authentication is missing', async () => {
+      const res = await mockServer.get('/blog/key')
+
+      expect(res.status).toEqual(401)
+      expect(res.body.message).toEqual(ERRORS_MSG.MISSING_AUTH)
+    })
+  })
 })

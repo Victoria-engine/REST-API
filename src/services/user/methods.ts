@@ -29,7 +29,7 @@ export const getUserByID = async (id: string) => {
   try {
     return await User.where<User>({ id }).fetch()
   } catch (err) {
-    throw new Error(err)
+    throw new Error(`user with id of ${id} does not exist`)
   }
 }
 
