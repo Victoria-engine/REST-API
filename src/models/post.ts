@@ -2,6 +2,8 @@ import { Bookshelf } from '../conn/knex'
 import { PostVisibility } from '../types'
 
 
+export const postVisibility = ['public', 'not-listed', 'private']
+
 class Post extends Bookshelf.Model<Post> {
   get tableName() { return 'post' }
   get hasTimestamps() { return true }

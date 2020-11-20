@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
+import { postVisibility } from '../../models/post'
 import { verifyJWT } from '../../middleware'
 import { validateParams } from '../../middleware/paramValidation'
 import { getBlogFromContentKey } from '../../services/blog/methods'
@@ -64,12 +65,23 @@ export default [
           type: 'string',
           validator_functions: [(p) => p.length <= 100000]
         },
-        // TODO: Add description
+        {
+          param_key: 'description',
+          required: false,
+          type: 'string',
+          validator_functions: [(p) => p.length <= 255],
+        },
+        {
+          param_key: 'visibility',
+          required: false,
+          type: 'string',
+          validator_functions: [(p) => postVisibility.includes(p)],
+        },
       ]),
 
       async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         const { userID = '' } = req
-        const { title, text } = req.body
+        const { title, text, visibility = 'not-listed', description } = req.body
 
         try {
           const user = await getUserByID(userID)
@@ -80,9 +92,12 @@ export default [
           }
 
           const freshPost = await createPost({
-            title, text,
+            title,
+            text,
             user_id: userID,
             blog_id: blogID,
+            visibility,
+            description,
           })
           if (!freshPost) {
             throw new Error('something went wrong when creating a post')
