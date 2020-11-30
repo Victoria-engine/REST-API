@@ -80,3 +80,23 @@ export type UpdateBlogPayload = {
   title?: string | null,
   description?: string | null,
 }
+
+export interface BasePost {
+  title: string,
+  text: string,
+  visibility: PostVisibility,
+  description?: string,
+}
+
+
+export interface CreatePostPayload extends BasePost {
+  user_id: string,
+  blog_id: string,
+}
+
+export interface UpdatePostPayload {
+  title?: string,
+  text?: string,
+  visibility?: PostVisibility,
+  description?: string,
+}

@@ -23,7 +23,9 @@ export default [
           }
 
           const blog = await getBlogFromContentKey(queryKey)
-          const blogPosts = await blog.posts().fetch()
+          const blogPosts = await blog.posts().fetch({
+            withRelated: ['user'],
+          })
 
           res.status(200).json(presentBlog(blog, blogPosts))
         } catch (err) {
