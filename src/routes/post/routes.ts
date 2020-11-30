@@ -3,7 +3,7 @@ import { postVisibility } from '../../models/post'
 import { verifyJWT } from '../../middleware'
 import { validateParams } from '../../middleware/paramValidation'
 import { getBlogFromContentKey } from '../../services/blog/methods'
-import { createPost, getAuthorPosts, getPostByID } from '../../services/post/methods'
+import { createPost, getAuthorPosts, getPostByID, updatePost } from '../../services/post/methods'
 import { presentPost } from '../../services/post/presenters'
 import { getUserByID } from '../../services/user/methods'
 import { AuthenticatedRequest } from '../../types'
@@ -112,5 +112,73 @@ export default [
         }
       },
     ],
-  }
+  },
+  {
+    path: '/post/:postID',
+    method: 'patch',
+    handler: [
+      verifyJWT,
+      validateParams([
+        {
+          param_key: 'title',
+          required: false,
+          type: 'string',
+          validator_functions: [(p) => p.length <= 60]
+        },
+        {
+          param_key: 'text',
+          required: false,
+          type: 'string',
+          validator_functions: [(p) => p.length <= 100000]
+        },
+        {
+          param_key: 'description',
+          required: false,
+          type: 'string',
+          validator_functions: [(p) => p.length <= 255],
+        },
+        {
+          param_key: 'visibility',
+          required: false,
+          type: 'string',
+          validator_functions: [(p) => postVisibility.includes(p)],
+        },
+      ]),
+
+      async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        const { userID = '' } = req
+        const { postID } = req.params
+        const { title, text, visibility, description } = req.body
+
+        try {
+          if (!postID) {
+            throw new HTTP400Error('postID is missing in query params')
+          }
+
+          const user = await getUserByID(userID)
+
+          const blogID = user.blog_id
+          if (!blogID) {
+            throw new HTTP400Error('user does not have a blog')
+          }
+
+          const post = await getPostByID(postID, blogID)
+
+          const updatedPost = await updatePost(post, {
+            title,
+            text,
+            visibility,
+            description,
+          })
+          if (!updatedPost) {
+            throw new Error('something went wrong updating the post')
+          }
+
+          res.status(200).json(presentPost(updatedPost))
+        } catch (err) {
+          next(err)
+        }
+      }
+    ]
+  },
 ]

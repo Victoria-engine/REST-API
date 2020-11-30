@@ -1,15 +1,8 @@
-import { PostVisibility } from '../../types'
+import { CreatePostPayload, UpdatePostPayload } from '../../types'
 import Post from '../../models/post'
 import { HTTP404Error } from '../../util/errors/httpErrors'
 
-export type CreatePostPayload = {
-  title: string,
-  text: string,
-  user_id: string,
-  blog_id: string,
-  visibility: PostVisibility,
-  description?: string,
-}
+
 export const createPost = async (args: CreatePostPayload) => {
   if (!args.user_id || !args.text || !args.blog_id || !args.visibility) return
 
@@ -20,11 +13,21 @@ export const createPost = async (args: CreatePostPayload) => {
   }
 }
 
+export const updatePost = async (post: Post, args: UpdatePostPayload) => {
+  try {
+    return await post.save(args, { patch: true })
+  } catch (err) {
+    throw new Error(err)
+  }
+}
+
 export const getPostByID = async (id: string, blog_id: string) => {
   try {
     return await Post
       .where<Post>({ id, blog_id })
-      .fetch()
+      .fetch({
+        withRelated: ['user']
+      })
   } catch (err) {
     throw new HTTP404Error(`post with ID of ${id} does not exist on this blog`)
   }
