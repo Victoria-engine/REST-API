@@ -10,7 +10,6 @@ class User extends Bookshelf.Model<User> {
   public get name(): string { return this.get('name') }
   public get email(): string { return this.get('email') }
   public get password(): string | null { return this.get('password') }
-
 }
 
 export default User

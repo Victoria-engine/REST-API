@@ -33,9 +33,11 @@ export const getPostByID = async (id: string, blog_id: string) => {
   }
 }
 
-export const getAuthorPosts = async (user_id: string) => {
+export const getUserPosts = async (user_id: string) => {
   try {
-    return await new Post().where('author_id', user_id).fetchAll()
+    return await new Post().where('user_id', user_id).fetchAll({
+      withRelated: ['user'],
+    })
   } catch (err) {
     throw new Error(`author with ID of ${user_id} does not exist`)
   }

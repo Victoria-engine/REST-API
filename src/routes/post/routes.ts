@@ -3,7 +3,7 @@ import { postVisibility } from '../../models/post'
 import { verifyJWT } from '../../middleware'
 import { validateParams } from '../../middleware/paramValidation'
 import { getBlogFromContentKey } from '../../services/blog/methods'
-import { createPost, getAuthorPosts, getPostByID, updatePost } from '../../services/post/methods'
+import { createPost, getPostByID, updatePost } from '../../services/post/methods'
 import { presentPost } from '../../services/post/presenters'
 import { getUserByID } from '../../services/user/methods'
 import { AuthenticatedRequest } from '../../types'
@@ -33,14 +33,23 @@ export default [
     ],
   },
   {
-    path: '/posts/:user_id',
+    path: '/posts',
     method: 'get',
     handler: [
       async (req: Request, res: Response, next: NextFunction) => {
-        const { user_id } = req.params
         try {
-          const userPosts = await getAuthorPosts(user_id)
-          res.status(200).json(userPosts)
+          const queryKey = req.query['key']?.toString()
+          if (!queryKey) {
+            throw new HTTP400Error('consumer key was not found in the query params')
+          }
+
+          const userBlog = await getBlogFromContentKey(queryKey)
+          const userPosts = await userBlog.posts().fetch({
+            withRelated: ['user'],
+          })
+          const prettyPosts = userPosts.map(p => presentPost(p))
+
+          res.status(200).json(prettyPosts)
         } catch (err) {
           next(err)
         }

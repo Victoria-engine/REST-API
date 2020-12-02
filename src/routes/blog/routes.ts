@@ -181,9 +181,7 @@ export default [
         const { userID = '' } = req
 
         try {
-          console.log('getting user...')
           const user = await getUserByID(userID)
-          console.log('got user...')
           if (!user.blog_id) {
             throw new HTTPError('user does not have a blog', 404)
           }

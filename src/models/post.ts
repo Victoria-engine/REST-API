@@ -15,6 +15,7 @@ class Post extends Bookshelf.Model<Post> {
   public get visibility(): PostVisibility { return this.get('visibility') }
   public get user_id(): string { return this.get('user_id') }
   public get blog_id(): string { return this.get('blog_id') }
+  public get updated_at(): Date { return this.get('updated_at') }
 
   user() {
     return this.belongsTo(User)
