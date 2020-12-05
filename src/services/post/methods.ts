@@ -42,3 +42,11 @@ export const getUserPosts = async (user_id: string) => {
     throw new Error(`author with ID of ${user_id} does not exist`)
   }
 }
+
+export const deletePost = async (id: string) => {
+  try {
+    return await Post.where<Post>({ id }).destroy()
+  } catch (err) {
+    throw new Error(err)
+  }
+}

@@ -3,7 +3,7 @@ import { postVisibility } from '../../models/post'
 import { verifyJWT } from '../../middleware'
 import { validateParams } from '../../middleware/paramValidation'
 import { getBlogFromContentKey } from '../../services/blog/methods'
-import { createPost, getPostByID, updatePost } from '../../services/post/methods'
+import { createPost, deletePost, getPostByID, updatePost } from '../../services/post/methods'
 import { presentPost } from '../../services/post/presenters'
 import { getUserByID } from '../../services/user/methods'
 import { AuthenticatedRequest } from '../../types'
@@ -189,5 +189,34 @@ export default [
         }
       }
     ]
+  },
+  {
+    path: '/post/:postID',
+    method: 'delete',
+    handler: [
+      verifyJWT,
+
+      async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        const { postID } = req.params
+
+        try {
+          if (!postID) {
+            throw new HTTP400Error('postID is missing in query params')
+          }
+
+          await deletePost(postID)
+
+          res.status(200).json({
+            success: true,
+            message: 'post deleted',
+          })
+        } catch (err) {
+          res.status(401).json({
+            message: err.message,
+          })
+          next(err)
+        }
+      },
+    ],
   },
 ]
