@@ -155,7 +155,7 @@ export default [
             throw new HTTP400Error('user does not have a blog')
           }
 
-          // Set the user `blog_id` to null so he isn't deleted
+          // Set the user `blog_id` to null so the user isn't deleted
           await updateUser(user, { blog_id: null })
 
           await deleteBlog(blogID)

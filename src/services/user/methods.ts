@@ -48,3 +48,12 @@ export const getUserByGoogleID = async (google_id: string) => {
     throw new HTTP401Error('no google user found with such credentials')
   }
 }
+
+
+export const deleteUser = async (id: string) => {
+  try {
+    return await User.where<User>({ id }).destroy()
+  } catch (err) {
+    throw new Error(err)
+  }
+}
