@@ -1,14 +1,15 @@
 import { NextFunction, Request, Response } from 'express'
 import { ACCESS_TOKEN_COOKIE_KEY, REFRESH_TOKEN_COOKIE_KEY } from '../../globals'
 import { validateParams } from '../../middleware/paramValidation'
-import { getTokenFromRequest, jwtService } from '../../services/auth/jwt/jwt'
-import { loginUser } from '../../services/auth/oauth2/login'
+import { jwtService } from '../../services/auth/jwt/jwt'
+import { loginUser, registerUser } from '../../services/auth/oauth2/auth'
 import { GoogleSerivce } from '../../services/auth/oauth2/google'
-import { createUser, getUserByGoogleID } from '../../services/user/methods'
-import { HTTP401Error } from '../../util/errors/httpErrors'
+import { getUserByGoogleID } from '../../services/user/methods'
+import { HTTP400Error, HTTP401Error } from '../../util/errors/httpErrors'
 import { refreshTokenRepository } from '../../services/auth/oauth2/refreshToken'
 import { createAccessToken, getTokenExpirationDate } from '../../services/auth/oauth2/methods'
 import { DecodedToken } from '../../types'
+
 
 export default [
   {
@@ -16,65 +17,53 @@ export default [
     method: 'post',
     handler: [
       async (req: Request, res: Response, next: NextFunction) => {
+        const code = req.query['code']?.toString()
+
         try {
-          const reqGoogleAccessToken = getTokenFromRequest(req)
-          if (!reqGoogleAccessToken) {
+          if (!code) {
+            throw new HTTP400Error('missing code query param')
+          }
+
+          const { access_token } = await GoogleSerivce.exchangeAccessTokenForCode(code)
+          if (!access_token) {
             throw new HTTP401Error('missing google access_token')
           }
 
-          const userData = await GoogleSerivce.getUserData(reqGoogleAccessToken)
-          if (!userData) {
-            throw new Error('failed getting user data from google oauth2')
-          }
+          const googleUserData = await GoogleSerivce.getUserData(access_token)
 
-          const user = await getUserByGoogleID(userData.id)
-          const shouldCreateNewUser = !user
-          if (shouldCreateNewUser) {
-            // TODO: Should this prompt to a new page to fill new data ??? or this is the default
-            // create new user
-            const freshUser = await createUser({
-              email: userData.email,
-              name: userData.name,
-              google_id: userData.id,
-              //TODO: Store more google info
-            })
-
-            if (!freshUser) {
-              throw new Error('failed creating user from google oauth2')
+          let user = null
+          try {
+            user = await getUserByGoogleID(googleUserData.id)
+          } finally {
+            if (!user) {
+              // The google user is registered with the public google data
+              user = await registerUser(googleUserData)
             }
 
-            const accessToken = await loginUser({
-              email: freshUser.email,
-              google_id: freshUser.id,
+            const { accessToken, refreshToken } = await loginUser({
+              email: googleUserData.email,
+              google_id: googleUserData.id,
             })
 
-            res.status(200).json(accessToken)
-            return
+            res.status(200)
+              .cookie(ACCESS_TOKEN_COOKIE_KEY, accessToken.token,
+                {
+                  secure: true, httpOnly: true,
+                  expires: getTokenExpirationDate(accessToken)
+                })
+              .cookie(REFRESH_TOKEN_COOKIE_KEY, refreshToken.token,
+                {
+                  secure: true, httpOnly: true,
+                  expires: getTokenExpirationDate(refreshToken)
+                })
+              .json({
+                access_token: accessToken.token,
+                expiresIn: accessToken.expiresIn,
+                refresh_token: refreshToken.token,
+                scope: '*',
+                token_type: 'Bearer',
+              })
           }
-
-          const { accessToken, refreshToken } = await loginUser({
-            email: userData.email,
-            google_id: userData.id,
-          })
-
-          res.status(200)
-            .cookie(ACCESS_TOKEN_COOKIE_KEY, accessToken.token,
-              {
-                secure: true, httpOnly: true,
-                expires: getTokenExpirationDate(accessToken)
-              })
-            .cookie(REFRESH_TOKEN_COOKIE_KEY, refreshToken.token,
-              {
-                secure: true, httpOnly: true,
-                expires: getTokenExpirationDate(refreshToken)
-              })
-            .json({
-              access_token: accessToken.token,
-              expiresIn: accessToken.expiresIn,
-              refresh_token: refreshToken.token,
-              scope: '*',
-              token_type: 'Bearer',
-            })
         } catch (err) {
           next(err)
         }
@@ -177,17 +166,17 @@ export default [
       },
     ],
   },
-/*   {
-    path: '/auth/register',
-    method: 'post',
-    handler: [
-      async (req: Request, res: Response, next: NextFunction) => {
-        try {
-          throw new Error('Not implememented!')
-        } catch (err) {
-          next(err)
-        }
-      },
-    ],
-  } */
+  /*   {
+      path: '/auth/register',
+      method: 'post',
+      handler: [
+        async (req: Request, res: Response, next: NextFunction) => {
+          try {
+            throw new Error('Not implememented!')
+          } catch (err) {
+            next(err)
+          }
+        },
+      ],
+    } */
 ]

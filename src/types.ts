@@ -12,14 +12,22 @@ export interface AuthenticatedRequest extends Request {
 export type LoginUserPayload = { email: string, password?: string, google_id?: string }
 export type JWTToken = { token: string, expiresIn: number }
 
-export interface LoginStrategy {
-  identifier: string,
+export interface InternalRegisterUserData {
+  email: string,
+  password: string,
+}
+
+export type AuthStrategyRegisterData = InternalRegisterUserData & GoogleUserData
+
+export interface AuthStrategy {
   getUser: (identifier: string) => Promise<User | null>,
   login: (credentials: LoginUserPayload) => Promise<{ accessToken: JWTToken; refreshToken: JWTToken; }>,
+  register: (userData: AuthStrategyRegisterData) => Promise<User>,
 }
-export enum LoginStragegies {
-  OAUTH2_GOOGLE = 'oauth2_google',
-  INTERNAL = 'internal'
+
+export enum AuthStragegies {
+  Google = 'oauth2_google',
+  Internal = 'internal'
 }
 
 export type GoogleUserData = {
@@ -28,8 +36,19 @@ export type GoogleUserData = {
   id: string,
 }
 
+export type GoogleUserAuthSession = {
+  access_token: string,
+  refresh_token: string,
+  id_token: string,
+  token_type: 'Bearer',
+  scope: string,
+  expires_in: number,
+}
+
 export interface GoogleService {
-  getUserData: (at: string) => Promise<GoogleUserData>
+  getUserData: (at: string) => Promise<GoogleUserData>,
+  exchangeAccessTokenForCode: (code: string) => Promise<GoogleUserAuthSession>,
+
 }
 
 export interface JWTService {
@@ -67,7 +86,13 @@ export interface RefreshTokenRepository {
   save: (payload: SaveAccessTokenPayload) => Promise<RefreshToken>
 }
 
-export type CreateUserPayload = { password?: string, email: string, name: string, google_id?: string }
+export interface CreateUserPayload {
+  password?: string,
+  email: string,
+  name?: string,
+  google_id?: string,
+}
+
 export type UpdateUserPayload = {
   password?: string | null,
   email?: string | null,
