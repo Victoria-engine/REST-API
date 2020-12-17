@@ -22,7 +22,13 @@ describe('createPost', () => {
   afterAll(() => tracker.uninstall())
 
   it('should return a post', async () => {
-    const res = await createPost({ user_id: '1', text: 'Sample text', title: 'Sample title', blog_id: '1' })
+    const res = await createPost({
+      user_id: '1',
+      text: 'Sample text',
+      title: 'Sample title',
+      blog_id: '1',
+      visibility: 'private',
+    })
     expect(res?.title).toEqual('Sample title')
   })
 

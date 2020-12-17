@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config()
 
 const { DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT } = process.env
@@ -9,7 +10,7 @@ module.exports = {
       database: DB_NAME || '',
       user: DB_USER || '',
       password: DB_PASSWORD || '',
-      host: DB_HOST || 'localhost',
+      host: DB_HOST || '0.0.0.0',
       port: DB_PORT || 3306,
     },
     migrations: {
@@ -19,7 +20,7 @@ module.exports = {
       directory: __dirname + '/db/src/seeds',
     },
   },
-  
+
 
   staging: {
     client: 'mysql',
@@ -27,7 +28,7 @@ module.exports = {
       database: DB_NAME || '',
       user: DB_USER || '',
       password: DB_PASSWORD || '',
-      host: DB_HOST || 'localhost',
+      host: DB_HOST || '0.0.0.0',
       port: DB_PORT || 3306,
     },
     pool: {
@@ -45,7 +46,7 @@ module.exports = {
       database: DB_NAME || '',
       user: DB_USER || '',
       password: DB_PASSWORD || '',
-      host: DB_HOST || 'localhost',
+      host: DB_HOST || '0.0.0.0',
       port: DB_PORT || 3306,
     },
     pool: {
@@ -57,4 +58,4 @@ module.exports = {
     }
   }
 
-};
+}

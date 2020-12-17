@@ -1,10 +1,33 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es5",
     "module": "commonjs",
+    "lib": [
+      "dom",
+      "es2017"
+    ],
     "rootDir": "./",
-    "outDir": "./build",
+    "outDir": "./build/",
     "esModuleInterop": true,
-    "strict": true
-  }
+    "strict": true,
+    "allowJs": true,
+    "baseUrl": "./",
+    "paths": {
+      "*": [
+        "/*"
+      ]
+    },
+  },
+  "exclude": [
+    "node_modules/**",
+    "build",
+    "coverage",
+    "docs",
+  ],
+  "includes": [
+    "src",
+    "**/*.tsx",
+    "**/*.ts",
+    "**/*.js"
+  ]
 }
