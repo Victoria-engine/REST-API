@@ -52,7 +52,7 @@
   "scripts": {
     "build": "tsc",
     "local": "NODE_ENV=development nodemon src/index.ts",
-    "start": "env $(grep -v '^#' .env | xargs) NODE_ENV=production node ./build/src/index.js",
+    "start": "npm run build && NODE_ENV=production  node ./build/src/index.js",
     "lint": "eslint . --ext .ts",
     "migrate": "knex migrate:make",
     "migrate:latest": "npx knex migrate:latest",
