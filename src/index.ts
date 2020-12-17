@@ -9,6 +9,7 @@ config()
 const { PORT = 3000 } = process.env
 
 const start = () => {
+  console.log("Starting with...", process.env)
   const applicationServer = Server.init()
   const server = createServer(applicationServer)
 

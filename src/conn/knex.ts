@@ -16,7 +16,9 @@ if (environment === 'test') {
   })
   mockKnex.mock(Knex)
 } else {
+  console.log("connection to ", envConfig)
   Knex = knex(envConfig)
+  console.log("Connected !")
 }
 
 export const Bookshelf = bookshelf(Knex as any)
