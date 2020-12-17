@@ -50,7 +50,7 @@
     "typescript": "^4.0.3"
   },
   "scripts": {
-    "build": "npm install && tsc && echo 'build ok'",
+    "build": "tsc && echo 'build ok'",
     "local": "NODE_ENV=development nodemon src/index.ts",
     "start": "npm run build && NODE_ENV=production node build/src/index.js",
     "lint": "eslint . --ext .ts",
