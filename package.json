@@ -32,7 +32,8 @@
     "pg": "^8.3.3",
     "signale": "^1.4.0",
     "ts-node": "^9.0.0",
-    "uuid": "^8.3.1"
+    "uuid": "^8.3.1",
+    "typescript": "^4.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
@@ -50,7 +51,7 @@
     "typescript": "^4.0.3"
   },
   "scripts": {
-    "build": "tsc && echo 'build ok'",
+    "build": "rm -rf build && tsc && echo 'build ok'",
     "local": "NODE_ENV=development nodemon src/index.ts",
     "start": "npm run build && NODE_ENV=production node build/src/index.js",
     "lint": "eslint . --ext .ts",
