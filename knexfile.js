@@ -43,19 +43,22 @@ module.exports = {
   production: {
     client: 'mysql',
     connection: {
+      //socketPath: `/cloudsql/${DB_INSTANCE_CONNECTION_NAME}`,
       database: DB_NAME || '',
-      user: DB_USER || '',
+      user: DB_USER || 'root',
       password: DB_PASSWORD || '',
       host: DB_HOST || '0.0.0.0',
-      port: DB_PORT || 3306,
     },
     pool: {
       min: 2,
       max: 10
     },
     migrations: {
-      tableName: 'knex_migrations'
-    }
+      directory: __dirname + '/db/src/migrations',
+    },
+    seeds: {
+      directory: __dirname + '/db/src/seeds',
+    },
   }
 
 }
