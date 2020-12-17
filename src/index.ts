@@ -6,14 +6,17 @@ import signale from 'signale'
 // Setup env variables to be used
 config()
 
-const { PORT = 3000 } = process.env
+const { PORT } = process.env
 
 const start = () => {
   console.log("Starting with...", process.env)
   const applicationServer = Server.init()
   const server = createServer(applicationServer)
 
-  server.listen(PORT)
+  server.listen({
+    host: '0.0.0.0',
+    port: PORT,
+  })
   server.on('listening', onListing)
   server.on('error', onError)
 
