@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "incremental": true,
+    "target": "ES2016",
     "module": "commonjs",
     "lib": [
-      "dom",
-      "es2017"
+      "ES2017"
     ],
+    "sourceMap": true,
     "rootDir": "./",
+    "moduleResolution": "node",
     "outDir": "./build/",
     "esModuleInterop": true,
     "strict": true,

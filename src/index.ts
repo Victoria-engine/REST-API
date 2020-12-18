@@ -3,20 +3,19 @@ import Server from './server'
 import { createServer } from 'http'
 import signale from 'signale'
 
-// Setup env variables to be used
-config()
 
-const { PORT } = process.env
+(async () => {
+  // Setup env variables to be used
+  config()
 
-const start = () => {
-  console.log("Starting with...", process.env)
+  const PORT = process.env.PORT || 3000
+
+  console.log('Starting with...', process.env)
   const applicationServer = Server.init()
   const server = createServer(applicationServer)
 
-  server.listen({
-    host: '0.0.0.0',
-    port: PORT,
-  })
+  server.listen(PORT)
+
   server.on('listening', onListing)
   server.on('error', onError)
 
@@ -34,8 +33,6 @@ const start = () => {
   }
 
   function onError(error: Error) {
-    signale.error('There was an error:', error)
+    signale.error(error)
   }
-}
-
-start()
+})()
