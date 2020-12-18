@@ -16,7 +16,9 @@ export default [
       async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         const { userID = '' } = req
         try {
+          console.log("getting user...", Date.now)
           const user = await getUserByID(userID)
+          console.log("got user", Date.now)
 
           res.status(200).json(presentUser(user))
         } catch (err) {
