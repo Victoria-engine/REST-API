@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config()
 
-const { DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT } = process.env
+const { DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_CONN_TIMEOUT } = process.env
 
 module.exports = {
   development: {
@@ -48,6 +48,7 @@ module.exports = {
       user: DB_USER || 'root',
       password: DB_PASSWORD || '',
       host: DB_HOST || '0.0.0.0',
+      acquireConnectionTimeout: DB_CONN_TIMEOUT || 15000,
     },
     pool: {
       min: 2,
@@ -55,9 +56,6 @@ module.exports = {
     },
     migrations: {
       directory: __dirname + '/db/src/migrations',
-    },
-    seeds: {
-      directory: __dirname + '/db/src/seeds',
     },
   }
 
