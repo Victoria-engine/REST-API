@@ -28,7 +28,10 @@ const get = async (accessToken: string) => {
       throw new Error('error while decoding access token')
     }
 
-    return await AccessToken.where<AccessToken>({ token: decodedToken.jti }).fetch()
+    console.log("verifying token ", Date.now)
+    const t = await AccessToken.where<AccessToken>({ token: decodedToken.jti }).fetch()
+    console.log("got token ", Date.now)
+    return t
   } catch (err) {
     throw new HTTP401Error('invalid access token')
   }
