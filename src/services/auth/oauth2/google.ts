@@ -5,7 +5,7 @@ import { GoogleService, GoogleUserAuthSession, GoogleUserData } from '../../../t
 const GoogleOAuth2ClientCredentials = {
   id: process.env.GOOGLE_CLIENT_ID,
   secret: process.env.GOOGLE_CLIENT_SECRET,
-  redirect_uri: 'http://localhost:7777/login',
+  redirect_uri: process.env.GOOGLE_REDIRECT_URI,
   scopes: [
     'https://www.googleapis.com/auth/userinfo.email',
     'https://www.googleapis.com/auth/userinfo.profile',
