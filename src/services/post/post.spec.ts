@@ -1,4 +1,5 @@
 import mockKnex from 'mock-knex'
+import { PostVisibility } from '../../types'
 import { createPost } from './methods'
 
 const tracker = mockKnex.getTracker()
@@ -27,7 +28,7 @@ describe('createPost', () => {
       text: 'Sample text',
       title: 'Sample title',
       blog_id: '1',
-      visibility: 'private',
+      visibility: PostVisibility.NotListed,
     })
     expect(res?.title).toEqual('Sample title')
   })

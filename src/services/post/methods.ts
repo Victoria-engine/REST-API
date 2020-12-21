@@ -1,6 +1,7 @@
-import { CreatePostPayload, UpdatePostPayload } from '../../types'
-import Post from '../../models/post'
+import { CreatePostPayload, PostVisibility, UpdatePostPayload } from '../../types'
 import { HTTP404Error } from '../../util/errors/httpErrors'
+import Blog from '../../models/blog'
+import Post from '../../models/post'
 
 
 export const createPost = async (args: CreatePostPayload) => {
@@ -46,6 +47,21 @@ export const getUserPosts = async (user_id: string) => {
 export const deletePost = async (id: string) => {
   try {
     return await Post.where<Post>({ id }).destroy()
+  } catch (err) {
+    throw new Error(err)
+  }
+}
+
+export const getBlogPosts = async (blog: Blog, visibility = PostVisibility.All) => {
+  try {
+    if (visibility === PostVisibility.All) {
+      return await blog.posts()
+        .fetch({ withRelated: ['user'] })
+    }
+
+    return await blog.posts()
+      .where({ 'visibility': visibility }, false)
+      .fetch({ withRelated: ['user'] })
   } catch (err) {
     throw new Error(err)
   }

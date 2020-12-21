@@ -66,7 +66,6 @@ export const updateBlog = async (blog: Blog, args: UpdateBlogPayload) => {
 export const getBlogFromContentKey = async (consumerKeyValue: string) => {
   // check if key exist in DB
   const consumerKey = await getConsumerKey(consumerKeyValue)
-
   return await getBlogFromConsumerKey(consumerKey.id)
 }
 

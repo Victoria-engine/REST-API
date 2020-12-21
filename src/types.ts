@@ -66,7 +66,12 @@ export type ValidationParam = {
   validator_functions?: ((param: any) => boolean)[]
 }
 
-export type PostVisibility = 'public' | 'not-listed' | 'private'
+export enum PostVisibility {
+  All = 'all',
+  Public = 'public',
+  NotListed = 'not-listed'
+}
+
 
 export type DecodedToken = {
   id: string,
@@ -124,4 +129,9 @@ export interface UpdatePostPayload {
   text?: string,
   visibility?: PostVisibility,
   description?: string,
+}
+
+export const isValidVisibility = (v?: string): v is PostVisibility => {
+  if (!v) return true
+  return Object.values(PostVisibility).includes(v as PostVisibility)
 }

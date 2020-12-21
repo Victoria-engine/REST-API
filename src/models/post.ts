@@ -2,7 +2,6 @@ import { Bookshelf } from '../conn/knex'
 import { PostVisibility } from '../types'
 import User from './user'
 
-
 export const postVisibility = ['public', 'not-listed', 'private']
 
 class Post extends Bookshelf.Model<Post> {

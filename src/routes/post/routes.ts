@@ -1,13 +1,16 @@
 import { NextFunction, Request, Response } from 'express'
-import { postVisibility } from '../../models/post'
+import Post, { postVisibility } from '../../models/post'
+import { isValidVisibility, PostVisibility } from '../../types'
 import { verifyJWT } from '../../middleware'
 import { validateParams } from '../../middleware/paramValidation'
-import { getBlogFromContentKey } from '../../services/blog/methods'
-import { createPost, deletePost, getPostByID, updatePost } from '../../services/post/methods'
+import { getBlogByID, getBlogFromContentKey } from '../../services/blog/methods'
+import { createPost, deletePost, getBlogPosts, getPostByID, updatePost } from '../../services/post/methods'
 import { presentPost } from '../../services/post/presenters'
 import { getUserByID } from '../../services/user/methods'
 import { AuthenticatedRequest } from '../../types'
 import { HTTP400Error } from '../../util/errors/httpErrors'
+import Bookshelf from 'bookshelf'
+
 
 export default [
   {
@@ -43,11 +46,10 @@ export default [
             throw new HTTP400Error('consumer key was not found in the query params')
           }
 
-          const userBlog = await getBlogFromContentKey(queryKey)
-          const userPosts = await userBlog.posts().fetch({
-            withRelated: ['user'],
-          })
-          const prettyPosts = userPosts.map(p => presentPost(p))
+          const blog = await getBlogFromContentKey(queryKey)
+          const posts = await getBlogPosts(blog, PostVisibility.Public)
+
+          const prettyPosts = (posts as Bookshelf.Collection<Post>).map(p => presentPost(p))
 
           res.status(200).json(prettyPosts)
         } catch (err) {
@@ -57,7 +59,39 @@ export default [
     ],
   },
   {
-    path: '/post',
+    path: '/admin/posts',
+    method: 'get',
+    handler: [
+      verifyJWT,
+
+      async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        const { userID = '' } = req
+        const visibility = req.query['visibility']?.toString() || 'all'
+
+        try {
+          if (!isValidVisibility(visibility)) {
+            throw new HTTP400Error(`Invalid visibility option: ${visibility}. Valid optins are: ${Object.values(PostVisibility).map(v => v)}`)
+          }
+
+          const user = await getUserByID(userID)
+          const blogID = user.blog_id
+          if (!blogID) {
+            throw new HTTP400Error('user does not have a blog')
+          }
+          const blog = await getBlogByID(blogID)
+          const posts = await getBlogPosts(blog, visibility)
+
+          const prettyPosts = (posts as Bookshelf.Collection<Post>).map(p => presentPost(p))
+
+          res.status(200).json(prettyPosts)
+        } catch (err) {
+          next(err)
+        }
+      },
+    ],
+  },
+  {
+    path: '/admin/post',
     method: 'post',
     handler: [
       verifyJWT,
@@ -123,7 +157,7 @@ export default [
     ],
   },
   {
-    path: '/post/:postID',
+    path: '/admin/post/:postID',
     method: 'patch',
     handler: [
       verifyJWT,
@@ -191,7 +225,7 @@ export default [
     ]
   },
   {
-    path: '/post/:postID',
+    path: '/admin/post/:postID',
     method: 'delete',
     handler: [
       verifyJWT,

@@ -11,8 +11,6 @@ const privateKey = fs.readFileSync(path.join(process.cwd(), 'certificates/privat
 const publicKey = fs.readFileSync(path.join(process.cwd(), 'certificates/public.key'))
 
 
-
-
 const sign = (payload: string | Buffer | Record<string, unknown>, options?: SignOptions) => {
   const signOptions: SignOptions = {
     ...options,
@@ -44,7 +42,7 @@ const decode = (token: string) => {
   }
 }
 
-export const getTokenFromRequest = (req: Request): string => {
+const getTokenFromRequest = (req: Request): string => {
   const authHeader = req.get('Authorization')
   const authCookie = req.cookies && req.cookies[ACCESS_TOKEN_COOKIE_KEY]
 
@@ -67,6 +65,7 @@ export const getTokenFromRequest = (req: Request): string => {
 
   return accessToken
 }
+
 
 export const jwtService: JWTService = {
   sign,

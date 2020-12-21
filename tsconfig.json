@@ -9,14 +9,18 @@
     "sourceMap": true,
     "rootDir": "./",
     "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
     "outDir": "./build/",
     "esModuleInterop": true,
     "strict": true,
     "allowJs": true,
-    "baseUrl": "./",
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "baseUrl": "./src/",
     "paths": {
       "*": [
-        "/*"
+        "src/*"
       ]
     },
   },
