@@ -4,7 +4,7 @@ import Server from '../../server'
 import ConsumerKey from '../../models/consumerKey'
 import Blog from '../../models/blog'
 import Post from '../../models/post'
-import { ERRORS_MSG } from '../../globals'
+import { ADMIN_ROUTE_PREFIX, ERRORS_MSG } from '../../globals'
 import { mockJWTVerifyMiddleware } from '../../util/mocks'
 
 
@@ -76,7 +76,7 @@ describe('Blog', () => {
     afterAll(() => tracker.uninstall())
 
     it('should return 401 if authentication is missing', async () => {
-      const res = await mockServer.post('/blog')
+      const res = await mockServer.post(`${ADMIN_ROUTE_PREFIX}/blog`)
 
       expect(res.status).toEqual(401)
       expect(res.body.message).toEqual(ERRORS_MSG.MISSING_AUTH)
@@ -85,13 +85,13 @@ describe('Blog', () => {
     it('should return 400 if there are missing arguments', async () => {
       mockJWTVerifyMiddleware()
 
-      const res = await mockServer.post('/blog')
+      const res = await mockServer.post(`${ADMIN_ROUTE_PREFIX}/blog`)
         .set('Authorization', 'Bearer some-stub-token')
 
       expect(res.body.message).toEqual('missing parameter title')
       expect(res.status).toEqual(400)
 
-      const res2 = await mockServer.post('/blog')
+      const res2 = await mockServer.post(`${ADMIN_ROUTE_PREFIX}/blog`)
         .set('Authorization', 'Bearer some-stub-token')
         .send({
           title: 'stub title',
@@ -112,7 +112,7 @@ describe('Blog', () => {
     afterAll(() => tracker.uninstall())
 
     it('should return 401 if authentication is missing', async () => {
-      const res = await mockServer.get('/blog/key')
+      const res = await mockServer.post(`${ADMIN_ROUTE_PREFIX}/blog/key`)
 
       expect(res.status).toEqual(401)
       expect(res.body.message).toEqual(ERRORS_MSG.MISSING_AUTH)

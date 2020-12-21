@@ -10,6 +10,7 @@ import { getUserByID } from '../../services/user/methods'
 import { AuthenticatedRequest } from '../../types'
 import { HTTP400Error } from '../../util/errors/httpErrors'
 import Bookshelf from 'bookshelf'
+import { ADMIN_ROUTE_PREFIX } from '../../globals'
 
 
 export default [
@@ -59,7 +60,7 @@ export default [
     ],
   },
   {
-    path: '/admin/posts',
+    path: `${ADMIN_ROUTE_PREFIX}/posts`,
     method: 'get',
     handler: [
       verifyJWT,
@@ -91,7 +92,7 @@ export default [
     ],
   },
   {
-    path: '/admin/post',
+    path: `${ADMIN_ROUTE_PREFIX}/post`,
     method: 'post',
     handler: [
       verifyJWT,
@@ -157,7 +158,7 @@ export default [
     ],
   },
   {
-    path: '/admin/post/:postID',
+    path: `${ADMIN_ROUTE_PREFIX}/post/:postID`,
     method: 'patch',
     handler: [
       verifyJWT,
@@ -225,7 +226,7 @@ export default [
     ]
   },
   {
-    path: '/admin/post/:postID',
+    path: `${ADMIN_ROUTE_PREFIX}/post/:postID`,
     method: 'delete',
     handler: [
       verifyJWT,

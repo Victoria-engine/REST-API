@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
+import { ADMIN_ROUTE_PREFIX } from '../../globals'
 import { verifyJWT } from '../../middleware'
 import { validateParams } from '../../middleware/paramValidation'
 import {
@@ -9,6 +10,7 @@ import { presentBlog } from '../../services/blog/presenters'
 import { getUserByID, updateUser } from '../../services/user/methods'
 import { AuthenticatedRequest } from '../../types'
 import { HTTP400Error, HTTPError } from '../../util/errors/httpErrors'
+
 
 export default [
   {
@@ -35,7 +37,7 @@ export default [
     ],
   },
   {
-    path: '/blog',
+    path: `${ADMIN_ROUTE_PREFIX}/blog`,
     method: 'post',
     handler: [
       verifyJWT,
@@ -90,7 +92,7 @@ export default [
     ],
   },
   {
-    path: '/blog',
+    path: `${ADMIN_ROUTE_PREFIX}/blog`,
     method: 'patch',
     handler: [
       verifyJWT,
@@ -139,7 +141,7 @@ export default [
     ]
   },
   {
-    path: '/blog',
+    path: `${ADMIN_ROUTE_PREFIX}/blog`,
     method: 'delete',
     handler: [
       verifyJWT,
@@ -172,7 +174,7 @@ export default [
     ]
   },
   {
-    path: '/blog/key',
+    path: `${ADMIN_ROUTE_PREFIX}/blog/key`,
     method: 'get',
     handler: [
       verifyJWT,

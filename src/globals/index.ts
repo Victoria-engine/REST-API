@@ -9,3 +9,5 @@ export const ERRORS_MSG = {
 export const ACCESS_TOKEN_COOKIE_KEY = 'victoria_a_t'
 export const REFRESH_TOKEN_COOKIE_KEY = 'victoria_r_t'
 export const CONTENT_KEY_COOKIE_KEY = 'victoria_consumer_key'
+
+export const ADMIN_ROUTE_PREFIX = '/admin'

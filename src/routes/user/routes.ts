@@ -5,10 +5,11 @@ import { AuthenticatedRequest } from '../../types'
 import { verifyJWT } from '../../middleware'
 import { deleteBlog } from '../../services/blog/methods'
 import { HTTP400Error } from '../../util/errors/httpErrors'
+import { ADMIN_ROUTE_PREFIX } from '../../globals'
 
 export default [
   {
-    path: '/user',
+    path: `${ADMIN_ROUTE_PREFIX}/user`,
     method: 'get',
     handler: [
       verifyJWT,
@@ -26,7 +27,7 @@ export default [
     ],
   },
   {
-    path: '/user',
+    path: `${ADMIN_ROUTE_PREFIX}/user`,
     method: 'delete',
     handler: [
       verifyJWT,
