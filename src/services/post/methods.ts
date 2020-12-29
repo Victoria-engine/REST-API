@@ -22,10 +22,18 @@ export const updatePost = async (post: Post, args: UpdatePostPayload) => {
   }
 }
 
-export const getPostByID = async (id: string, blog_id: string) => {
+export const getPostByID = async (id: string, blog_id: string, visibility = PostVisibility.Public) => {
   try {
+    if (visibility === PostVisibility.All) {
+      return await Post
+        .where<Post>({ id, blog_id })
+        .fetch({
+          withRelated: ['user']
+        })
+    }
+
     return await Post
-      .where<Post>({ id, blog_id })
+      .where<Post>({ id, blog_id, visibility })
       .fetch({
         withRelated: ['user']
       })

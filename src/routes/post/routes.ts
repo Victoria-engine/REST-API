@@ -27,8 +27,32 @@ export default [
           }
 
           const blog = await getBlogFromContentKey(queryKey)
-
           const post = await getPostByID(postID, blog.id)
+          res.status(200).json(presentPost(post))
+        } catch (err) {
+          next(err)
+        }
+      },
+    ],
+  },
+  {
+    path: '/admin/post/:postID',
+    method: 'get',
+    handler: [
+      verifyJWT,
+
+      async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        const { postID } = req.params
+        const { userID = '' } = req
+
+        try {
+          const user = await getUserByID(userID)
+          const blogID = user.blog_id
+          if (!blogID) {
+            throw new HTTP400Error('user does not have a blog')
+          }
+
+          const post = await getPostByID(postID, blogID, PostVisibility.All)
           res.status(200).json(presentPost(post))
         } catch (err) {
           next(err)

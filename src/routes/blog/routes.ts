@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
+import { getBlogPosts } from '../../services/post/methods'
 import { ADMIN_ROUTE_PREFIX } from '../../globals'
 import { verifyJWT } from '../../middleware'
 import { validateParams } from '../../middleware/paramValidation'
@@ -8,8 +9,10 @@ import {
 } from '../../services/blog/methods'
 import { presentBlog } from '../../services/blog/presenters'
 import { getUserByID, updateUser } from '../../services/user/methods'
-import { AuthenticatedRequest } from '../../types'
+import { AuthenticatedRequest, PostVisibility } from '../../types'
 import { HTTP400Error, HTTPError } from '../../util/errors/httpErrors'
+import Bookshelf from 'bookshelf'
+import Post from '../../models/post'
 
 
 export default [
@@ -25,11 +28,9 @@ export default [
           }
 
           const blog = await getBlogFromContentKey(queryKey)
-          const blogPosts = await blog.posts().fetch({
-            withRelated: ['user'],
-          })
+          const posts = await getBlogPosts(blog, PostVisibility.Public)
 
-          res.status(200).json(presentBlog(blog, blogPosts))
+          res.status(200).json(presentBlog(blog, posts as Bookshelf.Collection<Post>))
         } catch (err) {
           next(err)
         }
