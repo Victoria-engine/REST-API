@@ -230,7 +230,7 @@ export default [
             throw new HTTP400Error('user does not have a blog')
           }
 
-          const post = await getPostByID(postID, blogID)
+          const post = await getPostByID(postID, blogID, PostVisibility.All)
 
           const updatedPost = await updatePost(post, {
             title,
