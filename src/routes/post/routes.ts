@@ -145,11 +145,17 @@ export default [
           type: 'string',
           validator_functions: [(p) => postVisibility.includes(p)],
         },
+        {
+          param_key: 'created_at',
+          required: false,
+          type: 'string',
+          validator_functions: [(p) => p.length <= 100],
+        },
       ]),
 
       async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         const { userID = '' } = req
-        const { title, text, visibility = 'not-listed', description } = req.body
+        const { title, text, visibility = 'not-listed', description, created_at } = req.body
 
         try {
           const user = await getUserByID(userID)
@@ -166,6 +172,7 @@ export default [
             blog_id: blogID,
             visibility,
             description,
+            created_at: created_at ? new Date(created_at) : new Date(Date.now()),
           })
           if (!freshPost) {
             throw new Error('something went wrong when creating a post')
@@ -211,12 +218,18 @@ export default [
           type: 'string',
           validator_functions: [(p) => postVisibility.includes(p)],
         },
+        {
+          param_key: 'created_at',
+          required: false,
+          type: 'string',
+          validator_functions: [(p) => p.length <= 100],
+        },
       ]),
 
       async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         const { userID = '' } = req
         const { postID } = req.params
-        const { title, text, visibility, description } = req.body
+        const { title, text, visibility, description, created_at } = req.body
 
         try {
           if (!postID) {
@@ -231,12 +244,14 @@ export default [
           }
 
           const post = await getPostByID(postID, blogID, PostVisibility.All)
+          const { created_at: postCreatedAt } = post.attributes
 
           const updatedPost = await updatePost(post, {
             title,
             text,
             visibility,
             description,
+            created_at: created_at ? new Date(created_at) : postCreatedAt,
           })
           if (!updatedPost) {
             throw new Error('something went wrong updating the post')

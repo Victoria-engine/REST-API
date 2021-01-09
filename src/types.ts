@@ -116,6 +116,7 @@ export interface BasePost {
   text: string,
   visibility: PostVisibility,
   description?: string,
+  created_at?: Date,
 }
 
 
@@ -129,6 +130,7 @@ export interface UpdatePostPayload {
   text?: string,
   visibility?: PostVisibility,
   description?: string,
+  created_at?: Date,
 }
 
 export const isValidVisibility = (v?: string): v is PostVisibility => {
