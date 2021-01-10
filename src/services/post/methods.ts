@@ -64,10 +64,12 @@ export const getBlogPosts = async (blog: Blog, visibility = PostVisibility.All) 
   try {
     if (visibility === PostVisibility.All) {
       return await blog.posts()
+        .orderBy('created_at', 'DESC')
         .fetch({ withRelated: ['user'] })
     }
 
     return await blog.posts()
+      .orderBy('created_at', 'DESC')
       .where({ 'visibility': visibility }, false)
       .fetch({ withRelated: ['user'] })
   } catch (err) {
